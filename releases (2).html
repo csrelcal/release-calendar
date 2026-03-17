@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Release Calendar 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0d0f;
+    --surface: #161618;
+    --surface2: #1e1e21;
+    --border: rgba(255,255,255,0.07);
+    --text: #f0ede8;
+    --muted: #6b6a6e;
+    --accent: #e8c97a;
+    --tonight: #e87a7a;
+    --renders: #e8c97a;
+    --wip: #7ab2e8;
+    --post: #7ae8b2;
+    --shoot: #b27ae8;
+    --preprod: #e8a87a;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  .hero {
+    padding: 80px 48px 60px;
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero-left { max-width: 500px; }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(42px, 6vw, 72px);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  h1 em { font-style: italic; color: var(--accent); }
+
+  .hero-right { text-align: right; }
+
+  .stat-big {
+    font-family: 'Playfair Display', serif;
+    font-size: 64px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .legend {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 48px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  .main { max-width: 1100px; margin: 0 auto; padding: 0 48px 80px; }
+
+  .month-section { padding-top: 52px; }
+
+  .month-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .month-heading::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .releases-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+  }
+
+  .release-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    cursor: default;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  .release-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255,255,255,0.14);
+    background: var(--surface2);
+  }
+
+  .release-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    border-radius: 12px 0 0 12px;
+  }
+
+  .release-card.tonight::before { background: var(--tonight); }
+  .release-card.renders::before { background: var(--renders); }
+  .release-card.wip::before     { background: var(--wip); }
+  .release-card.post::before    { background: var(--post); }
+  .release-card.shoot::before   { background: var(--shoot); }
+  .release-card.preprod::before { background: var(--preprod); }
+
+  .release-card.tonight {
+    background: linear-gradient(135deg, #1e1515 0%, #161618 60%);
+    border-color: rgba(232,122,122,0.2);
+  }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+
+  .card-date { display: flex; flex-direction: column; }
+
+  .card-date-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .release-card.tonight .card-date-num { color: var(--tonight); }
+
+  .card-date-month {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+
+  .status-badge {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .tonight .status-badge  { background: rgba(232,122,122,0.15); color: var(--tonight); }
+  .renders .status-badge  { background: rgba(232,201,122,0.15); color: var(--renders); }
+  .wip .status-badge      { background: rgba(122,178,232,0.15); color: var(--wip); }
+  .post .status-badge     { background: rgba(122,232,178,0.15); color: var(--post); }
+  .shoot .status-badge    { background: rgba(178,122,232,0.15); color: var(--shoot); }
+  .preprod .status-badge  { background: rgba(232,168,122,0.15); color: var(--preprod); }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--text);
+  }
+
+  .card-subtitle {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 5px;
+    letter-spacing: 0.04em;
+  }
+
+  footer {
+    border-top: 1px solid var(--border);
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-text { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .release-card:nth-child(1)  { animation-delay: 0.05s; }
+  .release-card:nth-child(2)  { animation-delay: 0.10s; }
+  .release-card:nth-child(3)  { animation-delay: 0.15s; }
+  .release-card:nth-child(4)  { animation-delay: 0.20s; }
+  .release-card:nth-child(5)  { animation-delay: 0.25s; }
+  .release-card:nth-child(6)  { animation-delay: 0.30s; }
+  .release-card:nth-child(7)  { animation-delay: 0.35s; }
+  .release-card:nth-child(8)  { animation-delay: 0.40s; }
+  .release-card:nth-child(9)  { animation-delay: 0.45s; }
+  .release-card:nth-child(10) { animation-delay: 0.50s; }
+
+  @media (max-width: 700px) {
+    .hero { flex-direction: column; gap: 32px; padding: 48px 24px 40px; }
+    .hero-right { text-align: left; }
+    .legend { padding: 16px 24px; }
+    .main { padding: 0 24px 60px; }
+    footer { padding: 20px 24px; flex-direction: column; gap: 8px; text-align: center; }
+    .releases-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-left">
+    <p class="eyebrow">Production Schedule</p>
+    <h1>Release<br><em>Calendar</em></h1>
+  </div>
+  <div class="hero-right">
+    <div class="stat-big">22</div>
+    <div class="stat-label">Upcoming Releases</div>
+  </div>
+</header>
+
+<div class="legend">
+  <div class="legend-item"><span class="legend-dot" style="background:var(--tonight)"></span> Releasing Tonight</div>
+  <div class="legend-item"><span class="legend-dot" style="background:var(--renders)"></span> Final Renders</div>
+  <div class="legend-item"><span class="legend-dot" style="background:var(--wip)"></span> WIP</div>
+  <div class="legend-item"><span class="legend-dot" style="background:var(--post)"></span> In Post</div>
+  <div class="legend-item"><span class="legend-dot" style="background:var(--shoot)"></span> In Shoot</div>
+  <div class="legend-item"><span class="legend-dot" style="background:var(--preprod)"></span> Pre Production</div>
+</div>
+
+<main class="main">
+
+  <!-- March -->
+  <section class="month-section">
+    <h2 class="month-heading">March 2026</h2>
+    <div class="releases-grid">
+
+      <div class="release-card tonight">
+        <div class="card-top">
+          <div class="card-date"><span class="card-date-num">18</span><span class="card-date-month">Mar</span></div>
+          <span class="status-badge">Releasing Tonight</span>
+        </div>
+        <div class="card-title">Tejimola</div>
+      </div>
+
+      <div class="release-card renders">
+        <div class="card-top">
+          <div class="card-date"><span class="card-date-num">21</span><span class="card-date-month">Mar</span></div>
+          <span class="status-badge">Final Renders</span>
+        </div>
+        <div class="card-title">Rayudu Gaari Pelli</div>
+        <div class="card-subtitle">Final renders by Thursday</div>
+      </div>
+
+      <div class="release-card wip">
+        <div class="card-top">
+          <div class="card-date"><span class="card-date-num">25</span><span class="card-date-month">Mar</span></div>
+          <span class="status-badge">WIP</span>
+        </div>
+        <div class="card-title">Adipoli Apartments</div>
+        <div class="card-subtitle">Telugu Dubbing — In Progress</div>
+      </div>
+
+      <div class="release-card post">
+        <div class="card-top">
+          <div class="card-date"><span class="card-date-num">29</span><span class="card-date-month">Mar</span></div>
+          <span class="status-badge">In Post</span>
+        </div>
+        <div class="card-title">Worst Character / Sai Leelalu</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- April -->
+  <section class="month-section">
+    <h2 class="month-heading">April 2026</h2>
+    <div class="releases-grid">
+
+      <div class="release-card post">
+        <div class="card-top">
+          <div class="card-date"><span class="card-date-num">1</span><span class="card-date-month">Apr</span></div>
+          <span class="status-badge">In Post</span>
+        </div>
+        <div class="card-title">Love in Phalgam</div>
+      </div>
+
+      <div class="release-card post">
+        <div class="card-top">
+          <div class="card-date"><span class="card-date-num">4</span><span class="card-date-month">Apr</span></div>
+          <span class="status-badge">In Post</span>
+        </div>
+        <div class="card-title">Sai Leelalu / Worst Character</div>
+      </div>
+
+      <div class="release-card post">
+        <div class="card-top">
+          <div class="card-date"><span class="card-date-num">8</span><span class="card-date-month">Apr</span></div>
+          <span class="status-badge">In Post</span>
+        </div>
+        <div class="card-title">Love in Mussorie</div>
+      </div>
+
+      <div class="release-card post">
+        <div class="card-top">
+          <div class="card-date"><span class="card-date-num">11</span><span class="card-date-month">Apr</span></div>
+          <span class="status-badge">In Post</span>
+        </div>
+        <div class="card-title">Auto Basha / Shiva Mahatyam</div>
+      </div>
+
+      <div class="release-card post">
+        <div class="card-top">
+          <div class="card-date"><span class="card-date-num">15</span><span class="card-date-month">Apr</span></div>
+          <span class="status-badge">In Post</span>
+        </div>
+        <div class="card-title">15 Minutes / Nenu Mee Kalyan</div>
+      </div>
+
+      <div class="release-card post">
+        <div class="card-top">
+          <div class="card-date"><span class="card-date-num">18</span><span class="card-date-month">Apr</span></div>
+          <span class="status-badge">In Post</span>
+        </div>
+        <div class="card-title">Shiva Mahatyam / Auto Basha</div>
+      </div>
+
+      <div class="release-card post">
+        <div class="card-top">
+          <div class="card-date"><span class="card-date-num">22</span><span class="card-date-month">Apr</span></div>
+          <span class="status-badge">In Post</span>
+        </div>
+        <div class="card-title">Nenu Mee Kalyan / 15 Minutes</div>
+      </div>
+
+      <div class="release-card shoot">
+        <div class="card-top">
+          <div class="card-date"><span class="card-date-num">25</span><span class="card-date-month">Apr</span></div>
+          <span class="status-badge">In Shoot</span>
+        </div>
+        <div class="card-title">Musugu Veyoddhu</div>
+      </div>
+
+      <div class="release-card post">
+        <div class="card-top">
+          <div class="card-date"><span class="card-date-num">29</span><span class="card-date-month">Apr</span></div>
+          <span class="status-badge">In Post</span>
+        </div>
+        <div class="card-title">Rakaasi Pilla</div>
+        <div class="card-subtitle">Abyab</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- May -->
+  <section class="month-section">
+    <h2 class="month-heading">May 2026</h2>
+    <div class="releases-grid">
+
+      <div class="release-card shoot">
+        <div class="card-top">
+          <div class="card-date"><span class="card-date-num">2</span><span class="card-date-month">May</span></div>
+          <span class="status-badge">In Shoot</span>
+        </div>
+        <div class="card-title">Girl Things</div>
+      </div>
+
+      <div class="release-card post">
+        <div class="card-top">
+          <div class="card-date"><span class="card-date-num">6</span><span class="card-date-month">May</span></div>
+          <span class="status-badge">In Post</span>
+        </div>
+        <div class="card-title">EGO</div>
+      </div>
+
+      <div class="release-card preprod">
+        <div class="card-top">
+          <div class="card-date"><span class="card-date-num">9</span><span class="card-date-month">May</span></div>
+          <span class="status-badge">Pre Production</span>
+        </div>
+        <div class="card-title">Chaiwala Chanti</div>
+      </div>
+
+      <div class="release-card post">
+        <div class="card-top">
+          <div class="card-date"><span class="card-date-num">13</span><span class="card-date-month">May</span></div>
+          <span class="status-badge">In Post</span>
+        </div>
+        <div class="card-title">Ghar ki Dehleez</div>
+      </div>
+
+      <div class="release-card preprod">
+        <div class="card-top">
+          <div class="card-date"><span class="card-date-num">16</span><span class="card-date-month">May</span></div>
+          <span class="status-badge">Pre Production</span>
+        </div>
+        <div class="card-title">Angel Priya</div>
+      </div>
+
+      <div class="release-card post">
+        <div class="card-top">
+          <div class="card-date"><span class="card-date-num">20</span><span class="card-date-month">May</span></div>
+          <span class="status-badge">In Post</span>
+        </div>
+        <div class="card-title">Blind Date</div>
+      </div>
+
+      <div class="release-card preprod">
+        <div class="card-top">
+          <div class="card-date"><span class="card-date-num">23</span><span class="card-date-month">May</span></div>
+          <span class="status-badge">Pre Production</span>
+        </div>
+        <div class="card-title">Ownly Family</div>
+      </div>
+
+      <div class="release-card preprod">
+        <div class="card-top">
+          <div class="card-date"><span class="card-date-num">27</span><span class="card-date-month">May</span></div>
+          <span class="status-badge">Pre Production</span>
+        </div>
+        <div class="card-title">Breakup Sex</div>
+      </div>
+
+      <div class="release-card preprod">
+        <div class="card-top">
+          <div class="card-date"><span class="card-date-num">30</span><span class="card-date-month">May</span></div>
+          <span class="status-badge">Pre Production</span>
+        </div>
+        <div class="card-title">Nightangale</div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <span class="footer-text">22 releases &nbsp;·&nbsp; Mar – May 2026</span>
+  <span class="footer-text">Updated 17 Mar 2026</span>
+</footer>
+
+</body>
+</html>
