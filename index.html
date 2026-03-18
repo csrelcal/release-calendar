@@ -95,6 +95,13 @@
     margin-top: 4px;
   }
 
+  .today-tag {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 10px;
+    letter-spacing: 0.04em;
+  }
+
   .legend {
     max-width: 1100px;
     margin: 0 auto;
@@ -120,6 +127,7 @@
   .main { max-width: 1100px; margin: 0 auto; padding: 0 48px 80px; }
 
   .month-section { padding-top: 15px; }
+  .month-section.hidden { display: none; }
 
   .month-heading {
     font-family: 'Playfair Display', serif;
@@ -161,6 +169,8 @@
     cursor: default;
     animation: fadeUp 0.4s ease both;
   }
+
+  .release-card.hidden { display: none; }
 
   .release-card:hover {
     transform: translateY(-2px);
@@ -225,12 +235,12 @@
     white-space: nowrap;
   }
 
-  .tonight .status-badge  { background: rgba(232,122,122,0.15); color: var(--tonight); }
-  .renders .status-badge  { background: rgba(232,201,122,0.15); color: var(--renders); }
-  .wip .status-badge      { background: rgba(122,178,232,0.15); color: var(--wip); }
-  .post .status-badge     { background: rgba(122,232,178,0.15); color: var(--post); }
-  .shoot .status-badge    { background: rgba(178,122,232,0.15); color: var(--shoot); }
-  .preprod .status-badge  { background: rgba(232,168,122,0.15); color: var(--preprod); }
+  .tonight .status-badge { background: rgba(232,122,122,0.15); color: var(--tonight); }
+  .renders .status-badge { background: rgba(232,201,122,0.15); color: var(--renders); }
+  .wip .status-badge     { background: rgba(122,178,232,0.15); color: var(--wip); }
+  .post .status-badge    { background: rgba(122,232,178,0.15); color: var(--post); }
+  .shoot .status-badge   { background: rgba(178,122,232,0.15); color: var(--shoot); }
+  .preprod .status-badge { background: rgba(232,168,122,0.15); color: var(--preprod); }
 
   .card-title {
     font-family: 'Playfair Display', serif;
@@ -245,6 +255,27 @@
     color: var(--muted);
     margin-top: 5px;
     letter-spacing: 0.04em;
+  }
+
+  .empty-state {
+    display: none;
+    padding: 60px 0;
+    text-align: center;
+  }
+
+  .empty-state.visible { display: block; }
+
+  .empty-state-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .empty-state-sub {
+    font-size: 14px;
+    color: var(--muted);
   }
 
   footer {
@@ -276,7 +307,7 @@
   .release-card:nth-child(10) { animation-delay: 0.50s; }
 
   @media (max-width: 700px) {
-    .hero { gap: 32px; padding: 48px 24px 40px; }
+    .hero { gap: 32px; padding: 48px 24px 20px; }
     .hero-right { text-align: left; }
     .legend { padding: 16px 24px; }
     .main { padding: 0 24px 60px; }
@@ -293,27 +324,28 @@
     <h1>Release<br><em>Calendar</em></h1>
   </div>
   <div class="hero-right">
-    <div class="stat-big">22</div>
+    <div class="stat-big" id="release-count">—</div>
     <div class="stat-label">Upcoming Releases</div>
+    <div class="today-tag" id="today-tag"></div>
   </div>
 </header>
- 
+
 <main class="main">
 
   <!-- March -->
-  <section class="month-section">
+  <section class="month-section" id="month-march">
     <h2 class="month-heading">March 2026</h2>
     <div class="releases-grid">
 
-      <div class="release-card tonight">
+      <div class="release-card tonight" data-date="2026-03-18">
         <div class="card-top">
           <div class="card-date"><span class="card-date-num">18</span><span class="card-date-month">Mar</span></div>
-          <span class="status-badge">Released</span>
+          <span class="status-badge">Releasing Tonight</span>
         </div>
         <div class="card-title">Tejimola</div>
       </div>
 
-      <div class="release-card renders">
+      <div class="release-card renders" data-date="2026-03-21">
         <div class="card-top">
           <div class="card-date"><span class="card-date-num">21</span><span class="card-date-month">Mar</span></div>
           <span class="status-badge">Final Renders</span>
@@ -322,7 +354,7 @@
         <div class="card-subtitle">Final renders by Thursday</div>
       </div>
 
-      <div class="release-card wip">
+      <div class="release-card wip" data-date="2026-03-25">
         <div class="card-top">
           <div class="card-date"><span class="card-date-num">25</span><span class="card-date-month">Mar</span></div>
           <span class="status-badge">WIP</span>
@@ -331,7 +363,7 @@
         <div class="card-subtitle">Telugu Dubbing — In Progress</div>
       </div>
 
-      <div class="release-card post">
+      <div class="release-card post" data-date="2026-03-29">
         <div class="card-top">
           <div class="card-date"><span class="card-date-num">29</span><span class="card-date-month">Mar</span></div>
           <span class="status-badge">In Post</span>
@@ -343,11 +375,11 @@
   </section>
 
   <!-- April -->
-  <section class="month-section">
+  <section class="month-section" id="month-april">
     <h2 class="month-heading">April 2026</h2>
     <div class="releases-grid">
 
-      <div class="release-card post">
+      <div class="release-card post" data-date="2026-04-01">
         <div class="card-top">
           <div class="card-date"><span class="card-date-num">1</span><span class="card-date-month">Apr</span></div>
           <span class="status-badge">In Post</span>
@@ -355,7 +387,7 @@
         <div class="card-title">Love in Phalgam</div>
       </div>
 
-      <div class="release-card post">
+      <div class="release-card post" data-date="2026-04-04">
         <div class="card-top">
           <div class="card-date"><span class="card-date-num">4</span><span class="card-date-month">Apr</span></div>
           <span class="status-badge">In Post</span>
@@ -363,7 +395,7 @@
         <div class="card-title">Sai Leelalu / Worst Character</div>
       </div>
 
-      <div class="release-card post">
+      <div class="release-card post" data-date="2026-04-08">
         <div class="card-top">
           <div class="card-date"><span class="card-date-num">8</span><span class="card-date-month">Apr</span></div>
           <span class="status-badge">In Post</span>
@@ -371,7 +403,7 @@
         <div class="card-title">Love in Mussorie</div>
       </div>
 
-      <div class="release-card post">
+      <div class="release-card post" data-date="2026-04-11">
         <div class="card-top">
           <div class="card-date"><span class="card-date-num">11</span><span class="card-date-month">Apr</span></div>
           <span class="status-badge">In Post</span>
@@ -379,7 +411,7 @@
         <div class="card-title">Auto Basha / Shiva Mahatyam</div>
       </div>
 
-      <div class="release-card post">
+      <div class="release-card post" data-date="2026-04-15">
         <div class="card-top">
           <div class="card-date"><span class="card-date-num">15</span><span class="card-date-month">Apr</span></div>
           <span class="status-badge">In Post</span>
@@ -387,7 +419,7 @@
         <div class="card-title">15 Minutes / Nenu Mee Kalyan</div>
       </div>
 
-      <div class="release-card post">
+      <div class="release-card post" data-date="2026-04-18">
         <div class="card-top">
           <div class="card-date"><span class="card-date-num">18</span><span class="card-date-month">Apr</span></div>
           <span class="status-badge">In Post</span>
@@ -395,7 +427,7 @@
         <div class="card-title">Shiva Mahatyam / Auto Basha</div>
       </div>
 
-      <div class="release-card post">
+      <div class="release-card post" data-date="2026-04-22">
         <div class="card-top">
           <div class="card-date"><span class="card-date-num">22</span><span class="card-date-month">Apr</span></div>
           <span class="status-badge">In Post</span>
@@ -403,7 +435,7 @@
         <div class="card-title">Nenu Mee Kalyan / 15 Minutes</div>
       </div>
 
-      <div class="release-card shoot">
+      <div class="release-card shoot" data-date="2026-04-25">
         <div class="card-top">
           <div class="card-date"><span class="card-date-num">25</span><span class="card-date-month">Apr</span></div>
           <span class="status-badge">In Shoot</span>
@@ -411,7 +443,7 @@
         <div class="card-title">Musugu Veyoddhu</div>
       </div>
 
-      <div class="release-card post">
+      <div class="release-card post" data-date="2026-04-29">
         <div class="card-top">
           <div class="card-date"><span class="card-date-num">29</span><span class="card-date-month">Apr</span></div>
           <span class="status-badge">In Post</span>
@@ -424,11 +456,11 @@
   </section>
 
   <!-- May -->
-  <section class="month-section">
+  <section class="month-section" id="month-may">
     <h2 class="month-heading">May 2026</h2>
     <div class="releases-grid">
 
-      <div class="release-card shoot">
+      <div class="release-card shoot" data-date="2026-05-02">
         <div class="card-top">
           <div class="card-date"><span class="card-date-num">2</span><span class="card-date-month">May</span></div>
           <span class="status-badge">In Shoot</span>
@@ -436,7 +468,7 @@
         <div class="card-title">Girl Things</div>
       </div>
 
-      <div class="release-card post">
+      <div class="release-card post" data-date="2026-05-06">
         <div class="card-top">
           <div class="card-date"><span class="card-date-num">6</span><span class="card-date-month">May</span></div>
           <span class="status-badge">In Post</span>
@@ -444,7 +476,7 @@
         <div class="card-title">EGO</div>
       </div>
 
-      <div class="release-card preprod">
+      <div class="release-card preprod" data-date="2026-05-09">
         <div class="card-top">
           <div class="card-date"><span class="card-date-num">9</span><span class="card-date-month">May</span></div>
           <span class="status-badge">Pre Production</span>
@@ -452,7 +484,7 @@
         <div class="card-title">Chaiwala Chanti</div>
       </div>
 
-      <div class="release-card post">
+      <div class="release-card post" data-date="2026-05-13">
         <div class="card-top">
           <div class="card-date"><span class="card-date-num">13</span><span class="card-date-month">May</span></div>
           <span class="status-badge">In Post</span>
@@ -460,7 +492,7 @@
         <div class="card-title">Ghar ki Dehleez</div>
       </div>
 
-      <div class="release-card preprod">
+      <div class="release-card preprod" data-date="2026-05-16">
         <div class="card-top">
           <div class="card-date"><span class="card-date-num">16</span><span class="card-date-month">May</span></div>
           <span class="status-badge">Pre Production</span>
@@ -468,7 +500,7 @@
         <div class="card-title">Angel Priya</div>
       </div>
 
-      <div class="release-card post">
+      <div class="release-card post" data-date="2026-05-20">
         <div class="card-top">
           <div class="card-date"><span class="card-date-num">20</span><span class="card-date-month">May</span></div>
           <span class="status-badge">In Post</span>
@@ -476,7 +508,7 @@
         <div class="card-title">Blind Date</div>
       </div>
 
-      <div class="release-card preprod">
+      <div class="release-card preprod" data-date="2026-05-23">
         <div class="card-top">
           <div class="card-date"><span class="card-date-num">23</span><span class="card-date-month">May</span></div>
           <span class="status-badge">Pre Production</span>
@@ -484,31 +516,85 @@
         <div class="card-title">Ownly Family</div>
       </div>
 
-      <div class="release-card preprod">
+      <div class="release-card preprod" data-date="2026-05-27">
         <div class="card-top">
           <div class="card-date"><span class="card-date-num">27</span><span class="card-date-month">May</span></div>
           <span class="status-badge">Pre Production</span>
         </div>
-        <div class="card-title">Breakup Sex</div>
+        <div class="card-title">Nightingale</div>
       </div>
 
-      <div class="release-card preprod">
+      <div class="release-card preprod" data-date="2026-05-30">
         <div class="card-top">
           <div class="card-date"><span class="card-date-num">30</span><span class="card-date-month">May</span></div>
           <span class="status-badge">Pre Production</span>
         </div>
-        <div class="card-title">Nightangale</div>
+        <div class="card-title">Magajathi Aanimuthyam</div>
       </div>
 
     </div>
   </section>
 
+  <div class="empty-state" id="empty-state">
+    <div class="empty-state-title">All caught up!</div>
+    <div class="empty-state-sub">No upcoming releases scheduled.</div>
+  </div>
+
 </main>
 
 <footer>
-  <span class="footer-text">22 releases &nbsp;·&nbsp; Mar – May 2026</span>
-  <span class="footer-text">Updated 17 Mar 2026</span>
+  <span class="footer-text" id="footer-count">— releases</span>
+  <span class="footer-text">Mar – May 2026</span>
 </footer>
+
+<script>
+  (function () {
+    // Get today's date at midnight (local time) for clean comparison
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    // Show today's date in header
+    const todayLabel = today.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+    document.getElementById('today-tag').textContent = 'As of ' + todayLabel;
+
+    // Hide cards whose date has passed (strictly before today)
+    const cards = document.querySelectorAll('.release-card[data-date]');
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+      const parts = card.dataset.date.split('-');
+      // Build date at midnight local time to avoid timezone shifts
+      const releaseDate = new Date(
+        parseInt(parts[0]),
+        parseInt(parts[1]) - 1,
+        parseInt(parts[2])
+      );
+
+      if (releaseDate < today) {
+        card.classList.add('hidden');
+      } else {
+        visibleCount++;
+      }
+    });
+
+    // Hide entire month section if all its cards are hidden
+    document.querySelectorAll('.month-section').forEach(section => {
+      const visible = section.querySelectorAll('.release-card:not(.hidden)');
+      if (visible.length === 0) {
+        section.classList.add('hidden');
+      }
+    });
+
+    // Update count
+    document.getElementById('release-count').textContent = visibleCount;
+    document.getElementById('footer-count').textContent = visibleCount + ' upcoming release' + (visibleCount !== 1 ? 's' : '');
+
+    // Show empty state if nothing left
+    if (visibleCount === 0) {
+      document.getElementById('empty-state').classList.add('visible');
+    }
+  })();
+</script>
 
 </body>
 </html>
