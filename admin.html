@@ -479,6 +479,122 @@
   tr.dragging { opacity: 0.4; }
   tr.drag-over td { background: var(--accent-dim) !important; }
 
+  /* Status manager */
+  .status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .status-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: border-color 0.15s;
+  }
+
+  .status-card:hover { border-color: var(--border2); }
+
+  .status-card-swatch {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+
+  .status-card-info { flex: 1; min-width: 0; }
+
+  .status-card-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .status-card-key {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: monospace;
+    letter-spacing: 0.04em;
+  }
+
+  .status-card-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+  .status-card.built-in { opacity: 0.7; }
+  .status-card.built-in .action-btn { opacity: 0.4; pointer-events: none; }
+
+  .built-in-tag {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+
+  /* Color picker row */
+  .color-picker-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .color-swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.1s, border-color 0.1s;
+  }
+
+  .color-swatch:hover { transform: scale(1.15); }
+  .color-swatch.selected { border-color: #fff; transform: scale(1.1); }
+
+  .color-custom-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  input[type="color"] {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface2);
+    cursor: pointer;
+    padding: 2px;
+  }
+
+  .add-status-card {
+    background: var(--surface);
+    border: 1px dashed var(--border2);
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 13px;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .add-status-card:hover { background: var(--surface2); color: var(--text); }
+
   @media (max-width: 800px) {
     .sidebar { display: none; }
     .main { margin-left: 0; padding: 24px 20px; }
@@ -499,10 +615,13 @@
     </div>
     <nav class="sidebar-nav">
       <div class="nav-label">Menu</div>
-      <button class="nav-item active" onclick="showSection('releases')">
+      <button class="nav-item active" onclick="showSection('releases', this)">
         <span class="nav-icon">◈</span> Releases
       </button>
-      <button class="nav-item" onclick="showSection('stats')">
+      <button class="nav-item" onclick="showSection('statuses', this)">
+        <span class="nav-icon">◉</span> Statuses
+      </button>
+      <button class="nav-item" onclick="showSection('stats', this)">
         <span class="nav-icon">◎</span> Overview
       </button>
     </nav>
@@ -520,6 +639,15 @@
         <div class="page-title">Overview</div>
       </div>
       <div class="stats-row" id="stats-row"></div>
+    </div>
+
+    <!-- Statuses section -->
+    <div id="section-statuses" style="display:none">
+      <div class="page-header">
+        <div class="page-title">Manage <em>Statuses</em></div>
+        <button class="btn btn-primary" onclick="openStatusModal()">+ Add Status</button>
+      </div>
+      <div class="status-grid" id="status-grid"></div>
     </div>
 
     <!-- Releases section -->
@@ -582,14 +710,7 @@
       </div>
       <div class="form-group">
         <label class="form-label">Status</label>
-        <select class="form-select" id="f-status">
-          <option value="tonight">Releasing Tonight</option>
-          <option value="renders">Final Renders</option>
-          <option value="wip">WIP</option>
-          <option value="post" selected>In Post</option>
-          <option value="shoot">In Shoot</option>
-          <option value="preprod">Pre Production</option>
-        </select>
+        <select class="form-select" id="f-status"></select>
       </div>
     </div>
     <div class="form-group">
@@ -607,6 +728,33 @@
   </div>
 </div>
 
+<!-- Status Modal -->
+<div class="modal-overlay" id="status-modal-overlay" onclick="closeStatusModalOutside(event)">
+  <div class="modal">
+    <div class="modal-title" id="status-modal-title">Add <em>Status</em></div>
+    <div class="form-group">
+      <label class="form-label">Status Label</label>
+      <input class="form-input" type="text" id="fs-label" placeholder="e.g. Color Grading">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Key <span style="color:var(--muted);font-size:10px">(auto-generated, no spaces)</span></label>
+      <input class="form-input" type="text" id="fs-key" placeholder="e.g. colorgrading">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Color</label>
+      <div class="color-picker-row" id="color-swatches"></div>
+      <div class="color-custom-wrap">
+        <input type="color" id="fs-color-picker" value="#e8c97a" oninput="onColorPickerChange(this.value)">
+        <span style="font-size:12px;color:var(--muted)">Or pick a custom color</span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeStatusModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveStatus()">Save Status</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast">
   <div class="toast-dot"></div>
@@ -615,52 +763,93 @@
 
 <script>
 const STORAGE_KEY = 'chaishots_releases';
+const STATUS_STORAGE_KEY = 'chaishots_statuses';
 
-const STATUS_LABELS = {
-  tonight: 'Releasing Tonight',
-  renders:  'Final Renders',
-  wip:      'WIP',
-  post:     'In Post',
-  shoot:    'In Shoot',
-  preprod:  'Pre Production'
-};
+const PRESET_COLORS = [
+  '#e87a7a','#e8c97a','#7ab2e8','#7ae8b2','#b27ae8',
+  '#e8a87a','#7ae8e8','#e87ab2','#a8e87a','#e8e87a'
+];
+
+const BUILTIN_STATUSES = [
+  { key:'tonight', label:'Releasing Tonight', color:'#e87a7a', builtIn:true },
+  { key:'renders', label:'Final Renders',     color:'#e8c97a', builtIn:true },
+  { key:'wip',     label:'WIP',               color:'#7ab2e8', builtIn:true },
+  { key:'post',    label:'In Post',           color:'#7ae8b2', builtIn:true },
+  { key:'shoot',   label:'In Shoot',          color:'#b27ae8', builtIn:true },
+  { key:'preprod', label:'Pre Production',    color:'#e8a87a', builtIn:true },
+];
 
 const DEFAULT_RELEASES = [
-  { id:1,  date:'2026-03-18', title:'Tejimola',                       subtitle:'',                          status:'tonight'  },
-  { id:2,  date:'2026-03-21', title:'Rayudu Gaari Pelli',             subtitle:'Final renders by Thursday', status:'renders'  },
-  { id:3,  date:'2026-03-25', title:'Adipoli Apartments',             subtitle:'Telugu Dubbing — In Progress', status:'wip'   },
-  { id:4,  date:'2026-03-29', title:'Worst Character / Sai Leelalu', subtitle:'',                          status:'post'     },
-  { id:5,  date:'2026-04-01', title:'Love in Phalgam',                subtitle:'',                          status:'post'     },
-  { id:6,  date:'2026-04-04', title:'Sai Leelalu / Worst Character', subtitle:'',                          status:'post'     },
-  { id:7,  date:'2026-04-08', title:'Love in Mussorie',               subtitle:'',                          status:'post'     },
-  { id:8,  date:'2026-04-11', title:'Auto Basha / Shiva Mahatyam',   subtitle:'',                          status:'post'     },
-  { id:9,  date:'2026-04-15', title:'15 Minutes / Nenu Mee Kalyan',  subtitle:'',                          status:'post'     },
-  { id:10, date:'2026-04-18', title:'Shiva Mahatyam / Auto Basha',   subtitle:'',                          status:'post'     },
-  { id:11, date:'2026-04-22', title:'Nenu Mee Kalyan / 15 Minutes',  subtitle:'',                          status:'post'     },
-  { id:12, date:'2026-04-25', title:'Musugu Veyoddhu',                subtitle:'',                          status:'shoot'    },
-  { id:13, date:'2026-04-29', title:'Rakaasi Pilla',                  subtitle:'Abyab',                     status:'post'     },
-  { id:14, date:'2026-05-02', title:'Girl Things',                    subtitle:'',                          status:'shoot'    },
-  { id:15, date:'2026-05-06', title:'EGO',                            subtitle:'',                          status:'post'     },
-  { id:16, date:'2026-05-09', title:'Chaiwala Chanti',                subtitle:'',                          status:'preprod'  },
-  { id:17, date:'2026-05-13', title:'Ghar ki Dehleez',                subtitle:'',                          status:'post'     },
-  { id:18, date:'2026-05-16', title:'Angel Priya',                    subtitle:'',                          status:'preprod'  },
-  { id:19, date:'2026-05-20', title:'Blind Date',                     subtitle:'',                          status:'post'     },
-  { id:20, date:'2026-05-23', title:'Ownly Family',                   subtitle:'',                          status:'preprod'  },
-  { id:21, date:'2026-05-27', title:'Nightingale',                    subtitle:'',                          status:'preprod'  },
-  { id:22, date:'2026-05-30', title:'Magajathi Aanimuthyam',          subtitle:'',                          status:'preprod'  },
+  { id:1,  date:'2026-03-18', title:'Tejimola',                       subtitle:'',                             status:'tonight' },
+  { id:2,  date:'2026-03-21', title:'Rayudu Gaari Pelli',             subtitle:'Final renders by Thursday',    status:'renders' },
+  { id:3,  date:'2026-03-25', title:'Adipoli Apartments',             subtitle:'Telugu Dubbing — In Progress', status:'wip'     },
+  { id:4,  date:'2026-03-29', title:'Worst Character / Sai Leelalu', subtitle:'',                             status:'post'    },
+  { id:5,  date:'2026-04-01', title:'Love in Phalgam',                subtitle:'',                             status:'post'    },
+  { id:6,  date:'2026-04-04', title:'Sai Leelalu / Worst Character', subtitle:'',                             status:'post'    },
+  { id:7,  date:'2026-04-08', title:'Love in Mussorie',               subtitle:'',                             status:'post'    },
+  { id:8,  date:'2026-04-11', title:'Auto Basha / Shiva Mahatyam',   subtitle:'',                             status:'post'    },
+  { id:9,  date:'2026-04-15', title:'15 Minutes / Nenu Mee Kalyan',  subtitle:'',                             status:'post'    },
+  { id:10, date:'2026-04-18', title:'Shiva Mahatyam / Auto Basha',   subtitle:'',                             status:'post'    },
+  { id:11, date:'2026-04-22', title:'Nenu Mee Kalyan / 15 Minutes',  subtitle:'',                             status:'post'    },
+  { id:12, date:'2026-04-25', title:'Musugu Veyoddhu',                subtitle:'',                             status:'shoot'   },
+  { id:13, date:'2026-04-29', title:'Rakaasi Pilla',                  subtitle:'Abyab',                        status:'post'    },
+  { id:14, date:'2026-05-02', title:'Girl Things',                    subtitle:'',                             status:'shoot'   },
+  { id:15, date:'2026-05-06', title:'EGO',                            subtitle:'',                             status:'post'    },
+  { id:16, date:'2026-05-09', title:'Chaiwala Chanti',                subtitle:'',                             status:'preprod' },
+  { id:17, date:'2026-05-13', title:'Ghar ki Dehleez',                subtitle:'',                             status:'post'    },
+  { id:18, date:'2026-05-16', title:'Angel Priya',                    subtitle:'',                             status:'preprod' },
+  { id:19, date:'2026-05-20', title:'Blind Date',                     subtitle:'',                             status:'post'    },
+  { id:20, date:'2026-05-23', title:'Ownly Family',                   subtitle:'',                             status:'preprod' },
+  { id:21, date:'2026-05-27', title:'Nightingale',                    subtitle:'',                             status:'preprod' },
+  { id:22, date:'2026-05-30', title:'Magajathi Aanimuthyam',          subtitle:'',                             status:'preprod' },
 ];
 
 let releases = [];
+let customStatuses = []; // only user-created ones
 let editingId = null;
+let editingStatusKey = null;
+let selectedColor = PRESET_COLORS[0];
 let dragSrcId = null;
 
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function allStatuses() {
+  return [...BUILTIN_STATUSES, ...customStatuses];
+}
+
+function getStatusLabel(key) {
+  const s = allStatuses().find(s => s.key === key);
+  return s ? s.label : key;
+}
+
+function getStatusColor(key) {
+  const s = allStatuses().find(s => s.key === key);
+  return s ? s.color : '#888';
+}
+
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `${r},${g},${b}`;
+}
+
+// ── Load / Save ───────────────────────────────────────────────────────────────
+
 function load() {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  releases = stored ? JSON.parse(stored) : JSON.parse(JSON.stringify(DEFAULT_RELEASES));
+  const storedR = localStorage.getItem(STORAGE_KEY);
+  releases = storedR ? JSON.parse(storedR) : JSON.parse(JSON.stringify(DEFAULT_RELEASES));
+
+  const storedS = localStorage.getItem(STATUS_STORAGE_KEY);
+  customStatuses = storedS ? JSON.parse(storedS) : [];
 }
 
 function save() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(releases));
+}
+
+function saveStatuses() {
+  localStorage.setItem(STATUS_STORAGE_KEY, JSON.stringify(customStatuses));
 }
 
 function resetData() {
@@ -676,6 +865,8 @@ function nextId() {
   return releases.length ? Math.max(...releases.map(r => r.id)) + 1 : 1;
 }
 
+// ── Table ─────────────────────────────────────────────────────────────────────
+
 function getFiltered() {
   const q = document.getElementById('search-input').value.toLowerCase();
   const st = document.getElementById('filter-status').value;
@@ -686,10 +877,6 @@ function getFiltered() {
     if (mo && !r.date.startsWith('2026-' + mo)) return false;
     return true;
   });
-}
-
-function pillClass(status) {
-  return 'status-pill pill-' + status;
 }
 
 function formatDate(d) {
@@ -705,7 +892,10 @@ function renderTable() {
     tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No releases found</td></tr>';
     return;
   }
-  tbody.innerHTML = data.map((r, i) => `
+  tbody.innerHTML = data.map((r, i) => {
+    const color = getStatusColor(r.status);
+    const label = getStatusLabel(r.status);
+    return `
     <tr draggable="true" data-id="${r.id}"
         ondragstart="dragStart(event,${r.id})"
         ondragover="dragOver(event,${r.id})"
@@ -718,20 +908,21 @@ function renderTable() {
         ${r.subtitle ? `<div class="td-subtitle">${r.subtitle}</div>` : ''}
       </td>
       <td class="td-date">${formatDate(r.date)}</td>
-      <td><span class="${pillClass(r.status)}">${STATUS_LABELS[r.status]}</span></td>
+      <td>
+        <span class="status-pill" style="background:rgba(${hexToRgb(color)},0.15);color:${color}">${label}</span>
+      </td>
       <td>
         <div class="row-actions">
           <button class="action-btn" onclick="openModal(${r.id})">Edit</button>
           <button class="action-btn del" onclick="deleteRelease(${r.id})">Delete</button>
         </div>
       </td>
-    </tr>
-  `).join('');
+    </tr>`;
+  }).join('');
 }
 
 function renderMiniStats() {
-  const today = new Date();
-  today.setHours(0,0,0,0);
+  const today = new Date(); today.setHours(0,0,0,0);
   const upcoming = releases.filter(r => new Date(r.date) >= today).length;
   const byStatus = {};
   releases.forEach(r => { byStatus[r.status] = (byStatus[r.status]||0)+1; });
@@ -750,16 +941,37 @@ function renderMiniStats() {
       <div class="stat-card-label">In Post</div>
     </div>
     <div class="stat-card">
-      <div class="stat-card-num">${byStatus['preprod']||0}</div>
-      <div class="stat-card-label">Pre-Prod</div>
+      <div class="stat-card-num">${customStatuses.length}</div>
+      <div class="stat-card-label">Custom Statuses</div>
     </div>
   `;
 }
 
-// Modal
+// Populate both the release modal dropdown and the filter dropdown
+function populateStatusDropdowns() {
+  const statuses = allStatuses();
+
+  // Release modal select
+  const fStatus = document.getElementById('f-status');
+  const current = fStatus.value;
+  fStatus.innerHTML = statuses.map(s =>
+    `<option value="${s.key}">${s.label}</option>`
+  ).join('');
+  if (current) fStatus.value = current;
+
+  // Filter select
+  const filterStatus = document.getElementById('filter-status');
+  const filterCurrent = filterStatus.value;
+  filterStatus.innerHTML = `<option value="">All Statuses</option>` +
+    statuses.map(s => `<option value="${s.key}">${s.label}</option>`).join('');
+  if (filterCurrent) filterStatus.value = filterCurrent;
+}
+
+// ── Release Modal ─────────────────────────────────────────────────────────────
+
 function openModal(id) {
   editingId = id || null;
-  const modal = document.getElementById('modal-overlay');
+  populateStatusDropdowns();
   const title = document.getElementById('modal-title');
 
   if (id) {
@@ -777,7 +989,7 @@ function openModal(id) {
     document.getElementById('f-status').value = 'post';
   }
 
-  modal.classList.add('open');
+  document.getElementById('modal-overlay').classList.add('open');
   setTimeout(() => document.getElementById('f-title').focus(), 100);
 }
 
@@ -796,10 +1008,7 @@ function saveRelease() {
   const subtitle = document.getElementById('f-subtitle').value.trim();
   const status = document.getElementById('f-status').value;
 
-  if (!date || !title) {
-    alert('Please fill in at least the date and title.');
-    return;
-  }
+  if (!date || !title) { alert('Please fill in at least the date and title.'); return; }
 
   if (editingId) {
     const idx = releases.findIndex(r => r.id === editingId);
@@ -807,28 +1016,155 @@ function saveRelease() {
     toast('Release updated');
   } else {
     releases.push({ id: nextId(), date, title, subtitle, status });
-    // Keep sorted by date
     releases.sort((a,b) => a.date.localeCompare(b.date));
     toast('Release added');
   }
 
-  save();
-  renderTable();
-  renderMiniStats();
-  closeModal();
+  save(); renderTable(); renderMiniStats(); closeModal();
 }
 
 function deleteRelease(id) {
   const r = releases.find(x => x.id === id);
   if (!confirm(`Delete "${r.title}"?`)) return;
   releases = releases.filter(x => x.id !== id);
-  save();
-  renderTable();
-  renderMiniStats();
+  save(); renderTable(); renderMiniStats();
   toast('Release deleted');
 }
 
-// Drag to reorder
+// ── Status Section ────────────────────────────────────────────────────────────
+
+function renderStatusGrid() {
+  const grid = document.getElementById('status-grid');
+  const all = allStatuses();
+
+  grid.innerHTML = all.map(s => `
+    <div class="status-card ${s.builtIn ? 'built-in' : ''}">
+      <div class="status-card-swatch" style="background:rgba(${hexToRgb(s.color)},0.25);border:2px solid ${s.color}"></div>
+      <div class="status-card-info">
+        <div class="status-card-name">${s.label}</div>
+        <div class="status-card-key">${s.key} ${s.builtIn ? '' : ''}</div>
+      </div>
+      <div class="status-card-actions">
+        ${s.builtIn
+          ? `<span class="built-in-tag">Built-in</span>`
+          : `<button class="action-btn" onclick="openStatusModal('${s.key}')">Edit</button>
+             <button class="action-btn del" onclick="deleteStatus('${s.key}')">Del</button>`
+        }
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Status Modal ──────────────────────────────────────────────────────────────
+
+function openStatusModal(key) {
+  editingStatusKey = key || null;
+  selectedColor = PRESET_COLORS[0];
+
+  document.getElementById('status-modal-title').innerHTML = key ? 'Edit <em>Status</em>' : 'Add <em>Status</em>';
+
+  if (key) {
+    const s = customStatuses.find(x => x.key === key);
+    document.getElementById('fs-label').value = s.label;
+    document.getElementById('fs-key').value = s.key;
+    document.getElementById('fs-key').disabled = true;
+    selectedColor = s.color;
+    document.getElementById('fs-color-picker').value = s.color;
+  } else {
+    document.getElementById('fs-label').value = '';
+    document.getElementById('fs-key').value = '';
+    document.getElementById('fs-key').disabled = false;
+    document.getElementById('fs-color-picker').value = PRESET_COLORS[0];
+  }
+
+  // Auto-generate key from label
+  document.getElementById('fs-label').oninput = function() {
+    if (!editingStatusKey) {
+      document.getElementById('fs-key').value = this.value
+        .toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,20);
+    }
+  };
+
+  renderColorSwatches();
+  document.getElementById('status-modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('fs-label').focus(), 100);
+}
+
+function closeStatusModal() {
+  document.getElementById('status-modal-overlay').classList.remove('open');
+  editingStatusKey = null;
+}
+
+function closeStatusModalOutside(e) {
+  if (e.target === document.getElementById('status-modal-overlay')) closeStatusModal();
+}
+
+function renderColorSwatches() {
+  document.getElementById('color-swatches').innerHTML = PRESET_COLORS.map(c => `
+    <div class="color-swatch ${c === selectedColor ? 'selected' : ''}"
+         style="background:${c}"
+         onclick="selectColor('${c}')"
+         title="${c}"></div>
+  `).join('');
+}
+
+function selectColor(color) {
+  selectedColor = color;
+  document.getElementById('fs-color-picker').value = color;
+  renderColorSwatches();
+}
+
+function onColorPickerChange(color) {
+  selectedColor = color;
+  // Deselect all preset swatches since it's a custom color
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+}
+
+function saveStatus() {
+  const label = document.getElementById('fs-label').value.trim();
+  const key   = document.getElementById('fs-key').value.trim().toLowerCase().replace(/[^a-z0-9]/g,'');
+
+  if (!label || !key) { alert('Please fill in both label and key.'); return; }
+
+  // Check key collision (only for new)
+  if (!editingStatusKey) {
+    const exists = allStatuses().find(s => s.key === key);
+    if (exists) { alert(`Key "${key}" already exists. Please choose a different one.`); return; }
+  }
+
+  if (editingStatusKey) {
+    const idx = customStatuses.findIndex(s => s.key === editingStatusKey);
+    customStatuses[idx] = { ...customStatuses[idx], label, color: selectedColor };
+    toast('Status updated');
+  } else {
+    customStatuses.push({ key, label, color: selectedColor, builtIn: false });
+    toast('Status added');
+  }
+
+  saveStatuses();
+  populateStatusDropdowns();
+  renderStatusGrid();
+  renderMiniStats();
+  closeStatusModal();
+}
+
+function deleteStatus(key) {
+  const inUse = releases.some(r => r.status === key);
+  if (inUse) {
+    alert('This status is used by one or more releases. Reassign those releases first before deleting.');
+    return;
+  }
+  if (!confirm('Delete this status?')) return;
+  customStatuses = customStatuses.filter(s => s.key !== key);
+  saveStatuses();
+  populateStatusDropdowns();
+  renderStatusGrid();
+  renderMiniStats();
+  toast('Status deleted');
+}
+
+// ── Drag to reorder ───────────────────────────────────────────────────────────
+
 function dragStart(e, id) {
   dragSrcId = id;
   e.dataTransfer.effectAllowed = 'move';
@@ -849,8 +1185,7 @@ function dragDrop(e, targetId) {
   const tgtIdx = releases.findIndex(r => r.id === targetId);
   const [moved] = releases.splice(srcIdx, 1);
   releases.splice(tgtIdx, 0, moved);
-  save();
-  renderTable();
+  save(); renderTable();
   toast('Order updated');
 }
 
@@ -860,15 +1195,19 @@ function dragEnd(e) {
   });
 }
 
-// Section switching
-function showSection(name) {
-  document.getElementById('section-releases').style.display = name === 'releases' ? '' : 'none';
-  document.getElementById('section-stats').style.display = name === 'stats' ? '' : 'none';
+// ── Section switching ─────────────────────────────────────────────────────────
+
+function showSection(name, btn) {
+  ['releases','statuses','stats'].forEach(s => {
+    document.getElementById('section-' + s).style.display = s === name ? '' : 'none';
+  });
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  event.currentTarget.classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (name === 'statuses') renderStatusGrid();
 }
 
-// Toast
+// ── Toast ─────────────────────────────────────────────────────────────────────
+
 function toast(msg) {
   const el = document.getElementById('toast');
   document.getElementById('toast-msg').textContent = msg;
@@ -876,14 +1215,20 @@ function toast(msg) {
   setTimeout(() => el.classList.remove('show'), 2500);
 }
 
-// Keyboard shortcut: Escape closes modal
+// ── Keyboard shortcuts ────────────────────────────────────────────────────────
+
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeModal();
-  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') saveRelease();
+  if (e.key === 'Escape') { closeModal(); closeStatusModal(); }
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+    if (document.getElementById('modal-overlay').classList.contains('open')) saveRelease();
+    if (document.getElementById('status-modal-overlay').classList.contains('open')) saveStatus();
+  }
 });
 
-// Init
+// ── Init ──────────────────────────────────────────────────────────────────────
+
 load();
+populateStatusDropdowns();
 renderTable();
 renderMiniStats();
 </script>
