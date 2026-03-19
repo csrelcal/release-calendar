@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Release Calendar</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f0f;
+    --surface: #181818;
+    --surface2: #222222;
+    --surface3: #2a2a2a;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0ede8;
+    --muted: #666;
+    --accent: #e8c97a;
+    --accent-dim: rgba(232,201,122,0.12);
+    --red: #e87a7a;
+    --red-dim: rgba(232,122,122,0.12);
+    --green: #7ae8b2;
+    --green-dim: rgba(122,232,178,0.12);
+
+    --status-tonight: #e87a7a;
+    --status-renders: #e8c97a;
+    --status-wip: #7ab2e8;
+    --status-post: #7ae8b2;
+    --status-shoot: #b27ae8;
+    --status-preprod: #e8a87a;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+  }
+
+  /* Grain */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.35;
+  }
+
+  /* Layout */
+  .shell { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 32px 0;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-logo {
+    padding: 0 24px 32px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+
+  .sidebar-logo-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .sidebar-logo-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.1;
+  }
+
+  .sidebar-logo-title em { font-style: italic; color: var(--accent); }
+
+  .sidebar-nav { flex: 1; padding: 0 12px; }
+
+  .nav-label {
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 12px;
+    margin-bottom: 8px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    margin-bottom: 2px;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+  }
+
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: var(--accent-dim); color: var(--accent); }
+
+  .nav-icon { font-size: 14px; width: 18px; text-align: center; }
+
+  .sidebar-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .view-page-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background: var(--accent-dim);
+    border: 1px solid rgba(232,201,122,0.25);
+    border-radius: 8px;
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: center;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+
+  .view-page-btn:hover { background: rgba(232,201,122,0.2); }
+
+  /* Main content */
+  .main {
+    margin-left: 240px;
+    flex: 1;
+    padding: 40px 48px;
+    max-width: 1000px;
+  }
+
+  /* Page header */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+  }
+
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+  .page-title em { font-style: italic; color: var(--accent); }
+
+  /* Stats row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+
+  .stat-card-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .stat-card-label {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    flex: 1;
+    min-width: 200px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 14px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .search-box:focus { border-color: var(--border2); }
+  .search-box::placeholder { color: var(--muted); }
+
+  .filter-select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 14px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .btn {
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    transition: opacity 0.15s, background 0.15s;
+  }
+
+  .btn:hover { opacity: 0.85; }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #0f0f0f;
+  }
+
+  .btn-danger {
+    background: var(--red-dim);
+    color: var(--red);
+    border: 1px solid rgba(232,122,122,0.2);
+  }
+
+  .btn-ghost {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  /* Table */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  td {
+    padding: 14px 16px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: var(--surface2); }
+
+  .td-title { font-weight: 500; color: var(--text); }
+  .td-subtitle { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .td-date {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .status-pill {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .pill-tonight  { background: rgba(232,122,122,0.15);  color: var(--status-tonight); }
+  .pill-renders  { background: rgba(232,201,122,0.15);  color: var(--status-renders); }
+  .pill-wip      { background: rgba(122,178,232,0.15);  color: var(--status-wip); }
+  .pill-post     { background: rgba(122,232,178,0.15);  color: var(--status-post); }
+  .pill-shoot    { background: rgba(178,122,232,0.15);  color: var(--status-shoot); }
+  .pill-preprod  { background: rgba(232,168,122,0.15);  color: var(--status-preprod); }
+
+  .row-actions { display: flex; gap: 6px; }
+
+  .action-btn {
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface3);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.12s;
+  }
+
+  .action-btn:hover { background: var(--border2); }
+  .action-btn.del { color: var(--red); border-color: rgba(232,122,122,0.2); background: var(--red-dim); }
+  .action-btn.del:hover { background: rgba(232,122,122,0.22); }
+
+  .empty-row td {
+    text-align: center;
+    padding: 48px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    padding: 32px;
+    width: 480px;
+    max-width: 95vw;
+    animation: modalIn 0.2s ease;
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 24px;
+  }
+
+  .modal-title em { font-style: italic; color: var(--accent); }
+
+  .form-group { margin-bottom: 18px; }
+
+  .form-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .form-input, .form-select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .form-input:focus, .form-select:focus { border-color: var(--accent); }
+  .form-input::placeholder { color: var(--muted); }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 28px;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 13px;
+    color: var(--text);
+    z-index: 9000;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+
+  /* Drag handle */
+  .drag-handle {
+    cursor: grab;
+    color: var(--muted);
+    font-size: 14px;
+    padding: 0 4px;
+    user-select: none;
+  }
+
+  .drag-handle:active { cursor: grabbing; }
+
+  tr.dragging { opacity: 0.4; }
+  tr.drag-over td { background: var(--accent-dim) !important; }
+
+  @media (max-width: 800px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 24px 20px; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-label">Chai Shots</div>
+      <div class="sidebar-logo-title">Release<br><em>Admin</em></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Menu</div>
+      <button class="nav-item active" onclick="showSection('releases')">
+        <span class="nav-icon">◈</span> Releases
+      </button>
+      <button class="nav-item" onclick="showSection('stats')">
+        <span class="nav-icon">◎</span> Overview
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <a class="view-page-btn" href="releases.html" target="_blank">↗ View Live Page</a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Stats section -->
+    <div id="section-stats" style="display:none">
+      <div class="page-header">
+        <div class="page-title">Overview</div>
+      </div>
+      <div class="stats-row" id="stats-row"></div>
+    </div>
+
+    <!-- Releases section -->
+    <div id="section-releases">
+      <div class="page-header">
+        <div class="page-title">All <em>Releases</em></div>
+        <button class="btn btn-primary" onclick="openModal()">+ Add Release</button>
+      </div>
+
+      <div class="stats-row" id="mini-stats"></div>
+
+      <div class="toolbar">
+        <input class="search-box" type="text" placeholder="Search title..." id="search-input" oninput="renderTable()">
+        <select class="filter-select" id="filter-status" onchange="renderTable()">
+          <option value="">All Statuses</option>
+          <option value="tonight">Releasing Tonight</option>
+          <option value="renders">Final Renders</option>
+          <option value="wip">WIP</option>
+          <option value="post">In Post</option>
+          <option value="shoot">In Shoot</option>
+          <option value="preprod">Pre Production</option>
+        </select>
+        <select class="filter-select" id="filter-month" onchange="renderTable()">
+          <option value="">All Months</option>
+          <option value="03">March</option>
+          <option value="04">April</option>
+          <option value="05">May</option>
+        </select>
+        <button class="btn btn-ghost" onclick="resetData()" title="Reset to defaults">↺ Reset</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:28px"></th>
+              <th>#</th>
+              <th>Title</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="releases-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Add <em>Release</em></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Release Date</label>
+        <input class="form-input" type="date" id="f-date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-select" id="f-status">
+          <option value="tonight">Releasing Tonight</option>
+          <option value="renders">Final Renders</option>
+          <option value="wip">WIP</option>
+          <option value="post" selected>In Post</option>
+          <option value="shoot">In Shoot</option>
+          <option value="preprod">Pre Production</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Title</label>
+      <input class="form-input" type="text" id="f-title" placeholder="e.g. Love in Mussorie">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Subtitle / Note <span style="color:var(--muted);font-size:10px">(optional)</span></label>
+      <input class="form-input" type="text" id="f-subtitle" placeholder="e.g. Telugu Dubbing">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveRelease()">Save Release</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <div class="toast-dot"></div>
+  <span id="toast-msg">Saved</span>
+</div>
+
+<script>
+const STORAGE_KEY = 'chaishots_releases';
+
+const STATUS_LABELS = {
+  tonight: 'Releasing Tonight',
+  renders:  'Final Renders',
+  wip:      'WIP',
+  post:     'In Post',
+  shoot:    'In Shoot',
+  preprod:  'Pre Production'
+};
+
+const DEFAULT_RELEASES = [
+  { id:1,  date:'2026-03-18', title:'Tejimola',                       subtitle:'',                          status:'tonight'  },
+  { id:2,  date:'2026-03-21', title:'Rayudu Gaari Pelli',             subtitle:'Final renders by Thursday', status:'renders'  },
+  { id:3,  date:'2026-03-25', title:'Adipoli Apartments',             subtitle:'Telugu Dubbing — In Progress', status:'wip'   },
+  { id:4,  date:'2026-03-29', title:'Worst Character / Sai Leelalu', subtitle:'',                          status:'post'     },
+  { id:5,  date:'2026-04-01', title:'Love in Phalgam',                subtitle:'',                          status:'post'     },
+  { id:6,  date:'2026-04-04', title:'Sai Leelalu / Worst Character', subtitle:'',                          status:'post'     },
+  { id:7,  date:'2026-04-08', title:'Love in Mussorie',               subtitle:'',                          status:'post'     },
+  { id:8,  date:'2026-04-11', title:'Auto Basha / Shiva Mahatyam',   subtitle:'',                          status:'post'     },
+  { id:9,  date:'2026-04-15', title:'15 Minutes / Nenu Mee Kalyan',  subtitle:'',                          status:'post'     },
+  { id:10, date:'2026-04-18', title:'Shiva Mahatyam / Auto Basha',   subtitle:'',                          status:'post'     },
+  { id:11, date:'2026-04-22', title:'Nenu Mee Kalyan / 15 Minutes',  subtitle:'',                          status:'post'     },
+  { id:12, date:'2026-04-25', title:'Musugu Veyoddhu',                subtitle:'',                          status:'shoot'    },
+  { id:13, date:'2026-04-29', title:'Rakaasi Pilla',                  subtitle:'Abyab',                     status:'post'     },
+  { id:14, date:'2026-05-02', title:'Girl Things',                    subtitle:'',                          status:'shoot'    },
+  { id:15, date:'2026-05-06', title:'EGO',                            subtitle:'',                          status:'post'     },
+  { id:16, date:'2026-05-09', title:'Chaiwala Chanti',                subtitle:'',                          status:'preprod'  },
+  { id:17, date:'2026-05-13', title:'Ghar ki Dehleez',                subtitle:'',                          status:'post'     },
+  { id:18, date:'2026-05-16', title:'Angel Priya',                    subtitle:'',                          status:'preprod'  },
+  { id:19, date:'2026-05-20', title:'Blind Date',                     subtitle:'',                          status:'post'     },
+  { id:20, date:'2026-05-23', title:'Ownly Family',                   subtitle:'',                          status:'preprod'  },
+  { id:21, date:'2026-05-27', title:'Nightingale',                    subtitle:'',                          status:'preprod'  },
+  { id:22, date:'2026-05-30', title:'Magajathi Aanimuthyam',          subtitle:'',                          status:'preprod'  },
+];
+
+let releases = [];
+let editingId = null;
+let dragSrcId = null;
+
+function load() {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  releases = stored ? JSON.parse(stored) : JSON.parse(JSON.stringify(DEFAULT_RELEASES));
+}
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(releases));
+}
+
+function resetData() {
+  if (!confirm('Reset all releases to default data? This cannot be undone.')) return;
+  releases = JSON.parse(JSON.stringify(DEFAULT_RELEASES));
+  save();
+  renderTable();
+  renderMiniStats();
+  toast('Reset to default data');
+}
+
+function nextId() {
+  return releases.length ? Math.max(...releases.map(r => r.id)) + 1 : 1;
+}
+
+function getFiltered() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const st = document.getElementById('filter-status').value;
+  const mo = document.getElementById('filter-month').value;
+  return releases.filter(r => {
+    if (q && !r.title.toLowerCase().includes(q)) return false;
+    if (st && r.status !== st) return false;
+    if (mo && !r.date.startsWith('2026-' + mo)) return false;
+    return true;
+  });
+}
+
+function pillClass(status) {
+  return 'status-pill pill-' + status;
+}
+
+function formatDate(d) {
+  const [y, m, day] = d.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return day + ' ' + months[parseInt(m)-1] + ' ' + y;
+}
+
+function renderTable() {
+  const tbody = document.getElementById('releases-tbody');
+  const data = getFiltered();
+  if (!data.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No releases found</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map((r, i) => `
+    <tr draggable="true" data-id="${r.id}"
+        ondragstart="dragStart(event,${r.id})"
+        ondragover="dragOver(event,${r.id})"
+        ondrop="dragDrop(event,${r.id})"
+        ondragend="dragEnd(event)">
+      <td><span class="drag-handle" title="Drag to reorder">⠿</span></td>
+      <td style="color:var(--muted);font-size:12px">${i+1}</td>
+      <td>
+        <div class="td-title">${r.title}</div>
+        ${r.subtitle ? `<div class="td-subtitle">${r.subtitle}</div>` : ''}
+      </td>
+      <td class="td-date">${formatDate(r.date)}</td>
+      <td><span class="${pillClass(r.status)}">${STATUS_LABELS[r.status]}</span></td>
+      <td>
+        <div class="row-actions">
+          <button class="action-btn" onclick="openModal(${r.id})">Edit</button>
+          <button class="action-btn del" onclick="deleteRelease(${r.id})">Delete</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderMiniStats() {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const upcoming = releases.filter(r => new Date(r.date) >= today).length;
+  const byStatus = {};
+  releases.forEach(r => { byStatus[r.status] = (byStatus[r.status]||0)+1; });
+
+  document.getElementById('mini-stats').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-card-num">${releases.length}</div>
+      <div class="stat-card-label">Total</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-num">${upcoming}</div>
+      <div class="stat-card-label">Upcoming</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-num">${byStatus['post']||0}</div>
+      <div class="stat-card-label">In Post</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-num">${byStatus['preprod']||0}</div>
+      <div class="stat-card-label">Pre-Prod</div>
+    </div>
+  `;
+}
+
+// Modal
+function openModal(id) {
+  editingId = id || null;
+  const modal = document.getElementById('modal-overlay');
+  const title = document.getElementById('modal-title');
+
+  if (id) {
+    const r = releases.find(x => x.id === id);
+    title.innerHTML = 'Edit <em>Release</em>';
+    document.getElementById('f-date').value = r.date;
+    document.getElementById('f-title').value = r.title;
+    document.getElementById('f-subtitle').value = r.subtitle;
+    document.getElementById('f-status').value = r.status;
+  } else {
+    title.innerHTML = 'Add <em>Release</em>';
+    document.getElementById('f-date').value = '';
+    document.getElementById('f-title').value = '';
+    document.getElementById('f-subtitle').value = '';
+    document.getElementById('f-status').value = 'post';
+  }
+
+  modal.classList.add('open');
+  setTimeout(() => document.getElementById('f-title').focus(), 100);
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  editingId = null;
+}
+
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+function saveRelease() {
+  const date = document.getElementById('f-date').value;
+  const title = document.getElementById('f-title').value.trim();
+  const subtitle = document.getElementById('f-subtitle').value.trim();
+  const status = document.getElementById('f-status').value;
+
+  if (!date || !title) {
+    alert('Please fill in at least the date and title.');
+    return;
+  }
+
+  if (editingId) {
+    const idx = releases.findIndex(r => r.id === editingId);
+    releases[idx] = { ...releases[idx], date, title, subtitle, status };
+    toast('Release updated');
+  } else {
+    releases.push({ id: nextId(), date, title, subtitle, status });
+    // Keep sorted by date
+    releases.sort((a,b) => a.date.localeCompare(b.date));
+    toast('Release added');
+  }
+
+  save();
+  renderTable();
+  renderMiniStats();
+  closeModal();
+}
+
+function deleteRelease(id) {
+  const r = releases.find(x => x.id === id);
+  if (!confirm(`Delete "${r.title}"?`)) return;
+  releases = releases.filter(x => x.id !== id);
+  save();
+  renderTable();
+  renderMiniStats();
+  toast('Release deleted');
+}
+
+// Drag to reorder
+function dragStart(e, id) {
+  dragSrcId = id;
+  e.dataTransfer.effectAllowed = 'move';
+  e.currentTarget.classList.add('dragging');
+}
+
+function dragOver(e, id) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('tr.drag-over').forEach(r => r.classList.remove('drag-over'));
+  if (id !== dragSrcId) e.currentTarget.classList.add('drag-over');
+}
+
+function dragDrop(e, targetId) {
+  e.preventDefault();
+  if (dragSrcId === targetId) return;
+  const srcIdx = releases.findIndex(r => r.id === dragSrcId);
+  const tgtIdx = releases.findIndex(r => r.id === targetId);
+  const [moved] = releases.splice(srcIdx, 1);
+  releases.splice(tgtIdx, 0, moved);
+  save();
+  renderTable();
+  toast('Order updated');
+}
+
+function dragEnd(e) {
+  document.querySelectorAll('tr.dragging, tr.drag-over').forEach(r => {
+    r.classList.remove('dragging', 'drag-over');
+  });
+}
+
+// Section switching
+function showSection(name) {
+  document.getElementById('section-releases').style.display = name === 'releases' ? '' : 'none';
+  document.getElementById('section-stats').style.display = name === 'stats' ? '' : 'none';
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+
+// Toast
+function toast(msg) {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// Keyboard shortcut: Escape closes modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') saveRelease();
+});
+
+// Init
+load();
+renderTable();
+renderMiniStats();
+</script>
+</body>
+</html>
