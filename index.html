@@ -242,6 +242,32 @@
   .shoot .status-badge   { background: rgba(178,122,232,0.15); color: var(--shoot); }
   .preprod .status-badge { background: rgba(232,168,122,0.15); color: var(--preprod); }
 
+  /* Next Release badge */
+  .next-release-badge {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+    background: var(--accent);
+    color: #0d0d0f;
+    animation: pulse-badge 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-badge {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  .release-card.next-release {
+    border-color: rgba(232,201,122,0.35);
+    box-shadow: 0 0 0 1px rgba(232,201,122,0.15);
+  }
+
+  .release-card.next-release::before { background: var(--accent); }
+
   .card-title {
     font-family: 'Playfair Display', serif;
     font-size: 18px;
@@ -332,209 +358,6 @@
 
 <main class="main">
 
-  <!-- March -->
-  <section class="month-section" id="month-march">
-    <h2 class="month-heading">March 2026</h2>
-    <div class="releases-grid">
-
-      <div class="release-card tonight" data-date="2026-03-18">
-        <div class="card-top">
-          <div class="card-date"><span class="card-date-num">18</span><span class="card-date-month">Mar</span></div>
-          <span class="status-badge">Released</span>
-        </div>
-        <div class="card-title">Tejimola</div>
-      </div>
-
-      <div class="release-card renders" data-date="2026-03-21">
-        <div class="card-top">
-          <div class="card-date"><span class="card-date-num">21</span><span class="card-date-month">Mar</span></div>
-          <span class="status-badge">Final Renders</span>
-        </div>
-        <div class="card-title">Rayudu Gaari Pelli</div>
-        <div class="card-subtitle">Final renders by Thursday</div>
-      </div>
-
-      <div class="release-card wip" data-date="2026-03-25">
-        <div class="card-top">
-          <div class="card-date"><span class="card-date-num">25</span><span class="card-date-month">Mar</span></div>
-          <span class="status-badge">WIP</span>
-        </div>
-        <div class="card-title">Adipoli Apartments</div>
-        <div class="card-subtitle">Telugu Dubbing — In Progress</div>
-      </div>
-
-      <div class="release-card post" data-date="2026-03-29">
-        <div class="card-top">
-          <div class="card-date"><span class="card-date-num">29</span><span class="card-date-month">Mar</span></div>
-          <span class="status-badge">In Post</span>
-        </div>
-        <div class="card-title">Worst Character / Sai Leelalu</div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- April -->
-  <section class="month-section" id="month-april">
-    <h2 class="month-heading">April 2026</h2>
-    <div class="releases-grid">
-
-      <div class="release-card post" data-date="2026-04-01">
-        <div class="card-top">
-          <div class="card-date"><span class="card-date-num">1</span><span class="card-date-month">Apr</span></div>
-          <span class="status-badge">In Post</span>
-        </div>
-        <div class="card-title">Love in Phalgam</div>
-      </div>
-
-      <div class="release-card post" data-date="2026-04-04">
-        <div class="card-top">
-          <div class="card-date"><span class="card-date-num">4</span><span class="card-date-month">Apr</span></div>
-          <span class="status-badge">In Post</span>
-        </div>
-        <div class="card-title">Sai Leelalu / Worst Character</div>
-      </div>
-
-      <div class="release-card post" data-date="2026-04-08">
-        <div class="card-top">
-          <div class="card-date"><span class="card-date-num">8</span><span class="card-date-month">Apr</span></div>
-          <span class="status-badge">In Post</span>
-        </div>
-        <div class="card-title">Love in Mussorie</div>
-      </div>
-
-      <div class="release-card post" data-date="2026-04-11">
-        <div class="card-top">
-          <div class="card-date"><span class="card-date-num">11</span><span class="card-date-month">Apr</span></div>
-          <span class="status-badge">In Post</span>
-        </div>
-        <div class="card-title">Auto Basha / Shiva Mahatyam</div>
-      </div>
-
-      <div class="release-card post" data-date="2026-04-15">
-        <div class="card-top">
-          <div class="card-date"><span class="card-date-num">15</span><span class="card-date-month">Apr</span></div>
-          <span class="status-badge">In Post</span>
-        </div>
-        <div class="card-title">15 Minutes / Nenu Mee Kalyan</div>
-      </div>
-
-      <div class="release-card post" data-date="2026-04-18">
-        <div class="card-top">
-          <div class="card-date"><span class="card-date-num">18</span><span class="card-date-month">Apr</span></div>
-          <span class="status-badge">In Post</span>
-        </div>
-        <div class="card-title">Shiva Mahatyam / Auto Basha</div>
-      </div>
-
-      <div class="release-card post" data-date="2026-04-22">
-        <div class="card-top">
-          <div class="card-date"><span class="card-date-num">22</span><span class="card-date-month">Apr</span></div>
-          <span class="status-badge">In Post</span>
-        </div>
-        <div class="card-title">Nenu Mee Kalyan / 15 Minutes</div>
-      </div>
-
-      <div class="release-card shoot" data-date="2026-04-25">
-        <div class="card-top">
-          <div class="card-date"><span class="card-date-num">25</span><span class="card-date-month">Apr</span></div>
-          <span class="status-badge">In Shoot</span>
-        </div>
-        <div class="card-title">Musugu Veyoddhu</div>
-      </div>
-
-      <div class="release-card post" data-date="2026-04-29">
-        <div class="card-top">
-          <div class="card-date"><span class="card-date-num">29</span><span class="card-date-month">Apr</span></div>
-          <span class="status-badge">In Post</span>
-        </div>
-        <div class="card-title">Rakaasi Pilla</div>
-        <div class="card-subtitle">Abyab</div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- May -->
-  <section class="month-section" id="month-may">
-    <h2 class="month-heading">May 2026</h2>
-    <div class="releases-grid">
-
-      <div class="release-card shoot" data-date="2026-05-02">
-        <div class="card-top">
-          <div class="card-date"><span class="card-date-num">2</span><span class="card-date-month">May</span></div>
-          <span class="status-badge">In Shoot</span>
-        </div>
-        <div class="card-title">Girl Things</div>
-      </div>
-
-      <div class="release-card post" data-date="2026-05-06">
-        <div class="card-top">
-          <div class="card-date"><span class="card-date-num">6</span><span class="card-date-month">May</span></div>
-          <span class="status-badge">In Post</span>
-        </div>
-        <div class="card-title">EGO</div>
-      </div>
-
-      <div class="release-card preprod" data-date="2026-05-09">
-        <div class="card-top">
-          <div class="card-date"><span class="card-date-num">9</span><span class="card-date-month">May</span></div>
-          <span class="status-badge">Pre Production</span>
-        </div>
-        <div class="card-title">Chaiwala Chanti</div>
-      </div>
-
-      <div class="release-card post" data-date="2026-05-13">
-        <div class="card-top">
-          <div class="card-date"><span class="card-date-num">13</span><span class="card-date-month">May</span></div>
-          <span class="status-badge">In Post</span>
-        </div>
-        <div class="card-title">Ghar ki Dehleez</div>
-      </div>
-
-      <div class="release-card preprod" data-date="2026-05-16">
-        <div class="card-top">
-          <div class="card-date"><span class="card-date-num">16</span><span class="card-date-month">May</span></div>
-          <span class="status-badge">Pre Production</span>
-        </div>
-        <div class="card-title">Angel Priya</div>
-      </div>
-
-      <div class="release-card post" data-date="2026-05-20">
-        <div class="card-top">
-          <div class="card-date"><span class="card-date-num">20</span><span class="card-date-month">May</span></div>
-          <span class="status-badge">In Post</span>
-        </div>
-        <div class="card-title">Blind Date</div>
-      </div>
-
-      <div class="release-card preprod" data-date="2026-05-23">
-        <div class="card-top">
-          <div class="card-date"><span class="card-date-num">23</span><span class="card-date-month">May</span></div>
-          <span class="status-badge">Pre Production</span>
-        </div>
-        <div class="card-title">Ownly Family</div>
-      </div>
-
-      <div class="release-card preprod" data-date="2026-05-27">
-        <div class="card-top">
-          <div class="card-date"><span class="card-date-num">27</span><span class="card-date-month">May</span></div>
-          <span class="status-badge">Pre Production</span>
-        </div>
-        <div class="card-title">Nightingale</div>
-      </div>
-
-      <div class="release-card preprod" data-date="2026-05-30">
-        <div class="card-top">
-          <div class="card-date"><span class="card-date-num">30</span><span class="card-date-month">May</span></div>
-          <span class="status-badge">Pre Production</span>
-        </div>
-        <div class="card-title">Magajathi Aanimuthyam</div>
-      </div>
-
-    </div>
-  </section>
-
   <div class="empty-state" id="empty-state">
     <div class="empty-state-title">All caught up!</div>
     <div class="empty-state-sub">No upcoming releases scheduled.</div>
@@ -549,47 +372,158 @@
 
 <script>
   (function () {
-    // Get today's date at midnight (local time) for clean comparison
+    const STORAGE_KEY = 'chaishots_releases';
+
+    const STATUS_LABELS = {
+      tonight: 'Releasing Tonight',
+      renders: 'Final Renders',
+      wip:     'WIP',
+      post:    'In Post',
+      shoot:   'In Shoot',
+      preprod: 'Pre Production'
+    };
+
+    const DEFAULT_RELEASES = [
+      { id:1,  date:'2026-03-18', title:'Tejimola',                       subtitle:'',                             status:'tonight'  },
+      { id:2,  date:'2026-03-21', title:'Rayudu Gaari Pelli',             subtitle:'Final renders by Thursday',    status:'renders'  },
+      { id:3,  date:'2026-03-25', title:'Adipoli Apartments',             subtitle:'Telugu Dubbing — In Progress', status:'wip'      },
+      { id:4,  date:'2026-03-29', title:'Worst Character / Sai Leelalu', subtitle:'',                             status:'post'     },
+      { id:5,  date:'2026-04-01', title:'Love in Phalgam',                subtitle:'',                             status:'post'     },
+      { id:6,  date:'2026-04-04', title:'Sai Leelalu / Worst Character', subtitle:'',                             status:'post'     },
+      { id:7,  date:'2026-04-08', title:'Love in Mussorie',               subtitle:'',                             status:'post'     },
+      { id:8,  date:'2026-04-11', title:'Auto Basha / Shiva Mahatyam',   subtitle:'',                             status:'post'     },
+      { id:9,  date:'2026-04-15', title:'15 Minutes / Nenu Mee Kalyan',  subtitle:'',                             status:'post'     },
+      { id:10, date:'2026-04-18', title:'Shiva Mahatyam / Auto Basha',   subtitle:'',                             status:'post'     },
+      { id:11, date:'2026-04-22', title:'Nenu Mee Kalyan / 15 Minutes',  subtitle:'',                             status:'post'     },
+      { id:12, date:'2026-04-25', title:'Musugu Veyoddhu',                subtitle:'',                             status:'shoot'    },
+      { id:13, date:'2026-04-29', title:'Rakaasi Pilla',                  subtitle:'Abyab',                        status:'post'     },
+      { id:14, date:'2026-05-02', title:'Girl Things',                    subtitle:'',                             status:'shoot'    },
+      { id:15, date:'2026-05-06', title:'EGO',                            subtitle:'',                             status:'post'     },
+      { id:16, date:'2026-05-09', title:'Chaiwala Chanti',                subtitle:'',                             status:'preprod'  },
+      { id:17, date:'2026-05-13', title:'Ghar ki Dehleez',                subtitle:'',                             status:'post'     },
+      { id:18, date:'2026-05-16', title:'Angel Priya',                    subtitle:'',                             status:'preprod'  },
+      { id:19, date:'2026-05-20', title:'Blind Date',                     subtitle:'',                             status:'post'     },
+      { id:20, date:'2026-05-23', title:'Ownly Family',                   subtitle:'',                             status:'preprod'  },
+      { id:21, date:'2026-05-27', title:'Nightingale',                    subtitle:'',                             status:'preprod'  },
+      { id:22, date:'2026-05-30', title:'Magajathi Aanimuthyam',          subtitle:'',                             status:'preprod'  },
+    ];
+
+    // Load from localStorage or fall back to defaults
+    let releases;
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      releases = stored ? JSON.parse(stored) : DEFAULT_RELEASES;
+    } catch(e) {
+      releases = DEFAULT_RELEASES;
+    }
+
+    // Today at midnight
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    // Show today's date in header
+    // Show today's date
     const todayLabel = today.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
     document.getElementById('today-tag').textContent = 'As of ' + todayLabel;
 
-    // Hide cards whose date has passed (strictly before today)
-    const cards = document.querySelectorAll('.release-card[data-date]');
+    // Group by month
+    const MONTHS = {
+      '03': { label: 'March 2026',  id: 'month-march' },
+      '04': { label: 'April 2026',  id: 'month-april' },
+      '05': { label: 'May 2026',    id: 'month-may'   },
+    };
+
+    // Clear existing static sections and rebuild dynamically
+    const main = document.querySelector('.main');
+    const emptyState = document.getElementById('empty-state');
+
+    // Remove old month sections
+    document.querySelectorAll('.month-section').forEach(s => s.remove());
+
+    // Build sections from data
+    const grouped = {};
+    releases.forEach(r => {
+      const mo = r.date.split('-')[1];
+      if (!grouped[mo]) grouped[mo] = [];
+      grouped[mo].push(r);
+    });
+
     let visibleCount = 0;
+    let nextCard = null;
+    let nextDate = null;
 
-    cards.forEach(card => {
-      const parts = card.dataset.date.split('-');
-      // Build date at midnight local time to avoid timezone shifts
-      const releaseDate = new Date(
-        parseInt(parts[0]),
-        parseInt(parts[1]) - 1,
-        parseInt(parts[2])
-      );
+    Object.keys(grouped).sort().forEach(mo => {
+      const info = MONTHS[mo] || { label: mo, id: 'month-' + mo };
+      const section = document.createElement('section');
+      section.className = 'month-section';
+      section.id = info.id;
 
-      if (releaseDate < today) {
-        card.classList.add('hidden');
-      } else {
+      const heading = document.createElement('h2');
+      heading.className = 'month-heading';
+      heading.textContent = info.label;
+      section.appendChild(heading);
+
+      const grid = document.createElement('div');
+      grid.className = 'releases-grid';
+
+      let sectionVisible = 0;
+
+      grouped[mo].forEach(r => {
+        const parts = r.date.split('-');
+        const releaseDate = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+        const isPast = releaseDate < today;
+
+        if (isPast) return; // skip past
+
         visibleCount++;
+        sectionVisible++;
+
+        const card = document.createElement('div');
+        card.className = 'release-card ' + r.status;
+        card.dataset.date = r.date;
+
+        const dayNum = parseInt(parts[2]);
+        const monthShort = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(parts[1])-1];
+
+        card.innerHTML = `
+          <div class="card-top">
+            <div class="card-date">
+              <span class="card-date-num">${dayNum}</span>
+              <span class="card-date-month">${monthShort}</span>
+            </div>
+            <span class="status-badge">${STATUS_LABELS[r.status] || r.status}</span>
+          </div>
+          <div class="card-title">${r.title}</div>
+          ${r.subtitle ? `<div class="card-subtitle">${r.subtitle}</div>` : ''}
+        `;
+
+        // Track next release
+        if (!nextDate || releaseDate < nextDate) {
+          nextDate = releaseDate;
+          nextCard = card;
+        }
+
+        grid.appendChild(card);
+      });
+
+      section.appendChild(grid);
+
+      if (sectionVisible > 0) {
+        main.insertBefore(section, emptyState);
       }
     });
 
-    // Hide entire month section if all its cards are hidden
-    document.querySelectorAll('.month-section').forEach(section => {
-      const visible = section.querySelectorAll('.release-card:not(.hidden)');
-      if (visible.length === 0) {
-        section.classList.add('hidden');
-      }
-    });
+    // Mark next release
+    if (nextCard) {
+      nextCard.classList.add('next-release');
+      const badge = nextCard.querySelector('.status-badge');
+      if (badge) badge.outerHTML = '<span class="next-release-badge">Next Release</span>';
+    }
 
-    // Update count
+    // Update counts
     document.getElementById('release-count').textContent = visibleCount;
     document.getElementById('footer-count').textContent = visibleCount + ' upcoming release' + (visibleCount !== 1 ? 's' : '');
 
-    // Show empty state if nothing left
+    // Show empty state if nothing
     if (visibleCount === 0) {
       document.getElementById('empty-state').classList.add('visible');
     }
