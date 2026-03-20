@@ -242,6 +242,26 @@
   .shoot .status-badge   { background: rgba(178,122,232,0.15); color: var(--shoot); }
   .preprod .status-badge { background: rgba(232,168,122,0.15); color: var(--preprod); }
 
+  /* Released Today badge */
+  .released-today-badge {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+    background: rgba(122,232,178,0.15);
+    color: var(--post);
+  }
+
+  .release-card.released-today {
+    border-color: rgba(122,232,178,0.25);
+    box-shadow: 0 0 0 1px rgba(122,232,178,0.1);
+  }
+
+  .release-card.released-today::before { background: var(--post); }
+
   /* Next Release badge */
   .next-release-badge {
     font-size: 10px;
@@ -450,6 +470,7 @@
     let visibleCount = 0;
     let nextCard = null;
     let nextDate = null;
+    let todayCards = []; // cards releasing today
 
     Object.keys(grouped).sort().forEach(mo => {
       const info = MONTHS[mo] || { label: mo, id: 'month-' + mo };
@@ -471,8 +492,9 @@
         const parts = r.date.split('-');
         const releaseDate = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
         const isPast = releaseDate < today;
+        const isToday = releaseDate.getTime() === today.getTime();
 
-        if (isPast) return; // skip past
+        if (isPast) return; // skip past (before today)
 
         visibleCount++;
         sectionVisible++;
@@ -496,10 +518,15 @@
           ${r.subtitle ? `<div class="card-subtitle">${r.subtitle}</div>` : ''}
         `;
 
-        // Track next release
-        if (!nextDate || releaseDate < nextDate) {
-          nextDate = releaseDate;
-          nextCard = card;
+        if (isToday) {
+          // Collect all today's releases — they'll be marked "Released"
+          todayCards.push(card);
+        } else {
+          // Track the next upcoming release (first future date after today)
+          if (!nextDate || releaseDate < nextDate) {
+            nextDate = releaseDate;
+            nextCard = card;
+          }
         }
 
         grid.appendChild(card);
@@ -512,7 +539,14 @@
       }
     });
 
-    // Mark next release
+    // Mark today's releases as "Released"
+    todayCards.forEach(card => {
+      card.classList.add('released-today');
+      const badge = card.querySelector('.status-badge');
+      if (badge) badge.outerHTML = '<span class="released-today-badge">Released</span>';
+    });
+
+    // Mark the next upcoming release
     if (nextCard) {
       nextCard.classList.add('next-release');
       const badge = nextCard.querySelector('.status-badge');
