@@ -595,6 +595,12 @@
 
   .add-status-card:hover { background: var(--surface2); color: var(--text); }
 
+  /* Scripting status pills */
+  .pill-nowriter   { background: rgba(232,122,122,0.15);  color: #e87a7a; }
+  .pill-scripting  { background: rgba(122,178,232,0.15);  color: #7ab2e8; }
+  .pill-rewrite    { background: rgba(232,168,122,0.15);  color: #e8a87a; }
+  .pill-readyshoot { background: rgba(122,232,178,0.15);  color: #7ae8b2; }
+
   @media (max-width: 800px) {
     .sidebar { display: none; }
     .main { margin-left: 0; padding: 24px 20px; }
@@ -620,6 +626,9 @@
       </button>
       <button class="nav-item" onclick="showSection('statuses', this)">
         <span class="nav-icon">◉</span> Statuses
+      </button>
+      <button class="nav-item" onclick="showSection('scripting', this)">
+        <span class="nav-icon">✦</span> Scripting
       </button>
       <button class="nav-item" onclick="showSection('stats', this)">
         <span class="nav-icon">◎</span> Overview
@@ -696,6 +705,43 @@
       </div>
     </div>
 
+    <!-- Scripting section -->
+    <div id="section-scripting" style="display:none">
+      <div class="page-header">
+        <div class="page-title">Writing <em>Scripts</em></div>
+        <button class="btn btn-primary" onclick="openScriptingModal()">+ Add Title</button>
+      </div>
+
+      <div class="toolbar">
+        <input class="search-box" type="text" placeholder="Search title..." id="scripting-search" oninput="renderScriptingTable()">
+        <select class="filter-select" id="filter-scripting-status" onchange="renderScriptingTable()">
+          <option value="">All Statuses</option>
+          <option value="nowriter">No Writer</option>
+          <option value="scripting">Scripting</option>
+          <option value="rewrite">Rewrite</option>
+          <option value="readyshoot">Ready for Shoot</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Title</th>
+              <th>Writer</th>
+              <th>Creative Producer</th>
+              <th>Budget</th>
+              <th>Status</th>
+              <th>Release Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="scripting-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -751,6 +797,52 @@
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeStatusModal()">Cancel</button>
       <button class="btn btn-primary" onclick="saveStatus()">Save Status</button>
+    </div>
+  </div>
+</div>
+
+<!-- Scripting Modal -->
+<div class="modal-overlay" id="scripting-modal-overlay" onclick="closeScriptingModalOutside(event)">
+  <div class="modal" style="width:540px">
+    <div class="modal-title" id="scripting-modal-title">Add <em>Title</em></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Title</label>
+        <input class="form-input" type="text" id="fsc-title" placeholder="e.g. Rapido Ramesh">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Writer</label>
+        <input class="form-input" type="text" id="fsc-writer" placeholder="e.g. Manoj">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Creative Producer</label>
+        <input class="form-input" type="text" id="fsc-producer" placeholder="e.g. Uday">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Budget (₹)</label>
+        <input class="form-input" type="text" id="fsc-budget" placeholder="e.g. 8,00,000">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-select" id="fsc-status">
+          <option value="nowriter">No Writer</option>
+          <option value="scripting">Scripting</option>
+          <option value="rewrite">Rewrite</option>
+          <option value="readyshoot">Ready for Shoot</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Release Date</label>
+        <input class="form-input" type="date" id="fsc-date">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeScriptingModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveScripting()">Save</button>
     </div>
   </div>
 </div>
@@ -1198,12 +1290,13 @@ function dragEnd(e) {
 // ── Section switching ─────────────────────────────────────────────────────────
 
 function showSection(name, btn) {
-  ['releases','statuses','stats'].forEach(s => {
+  ['releases','statuses','stats','scripting'].forEach(s => {
     document.getElementById('section-' + s).style.display = s === name ? '' : 'none';
   });
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
   if (btn) btn.classList.add('active');
   if (name === 'statuses') renderStatusGrid();
+  if (name === 'scripting') renderScriptingTable();
 }
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
@@ -1215,19 +1308,154 @@ function toast(msg) {
   setTimeout(() => el.classList.remove('show'), 2500);
 }
 
+// ── Scripting ─────────────────────────────────────────────────────────────────
+
+const SCRIPTING_KEY = 'chaishots_scripting';
+
+const SCRIPTING_STATUS_META = {
+  nowriter:   { label: 'No Writer',       pillClass: 'pill-nowriter'   },
+  scripting:  { label: 'Scripting',       pillClass: 'pill-scripting'  },
+  rewrite:    { label: 'Rewrite',         pillClass: 'pill-rewrite'    },
+  readyshoot: { label: 'Ready for Shoot', pillClass: 'pill-readyshoot' },
+};
+
+const DEFAULT_SCRIPTING = [
+  { id:'sc1', title:'Rapido Ramesh',         writer:'Manoj', producer:'Uday', budget:'8,00,000', status:'scripting', date:'2026-06-10' },
+  { id:'sc2', title:'Begger to Billionaire', writer:'Manoj', producer:'Uday', budget:'8,00,000', status:'scripting', date:'2026-06-13' },
+  { id:'sc3', title:'D for Divorces',        writer:'Manoj', producer:'Uday', budget:'8,00,000', status:'scripting', date:'2026-06-17' },
+];
+
+let scriptingItems = [];
+let editingScriptingId = null;
+
+function loadScripting() {
+  const stored = localStorage.getItem(SCRIPTING_KEY);
+  scriptingItems = stored ? JSON.parse(stored) : JSON.parse(JSON.stringify(DEFAULT_SCRIPTING));
+}
+
+function saveScriptingData() {
+  localStorage.setItem(SCRIPTING_KEY, JSON.stringify(scriptingItems));
+}
+
+function renderScriptingTable() {
+  const query  = (document.getElementById('scripting-search').value || '').toLowerCase();
+  const filter = document.getElementById('filter-scripting-status').value;
+  const tbody  = document.getElementById('scripting-tbody');
+
+  const filtered = scriptingItems.filter(s => {
+    const matchQ = !query || s.title.toLowerCase().includes(query) || (s.writer||'').toLowerCase().includes(query);
+    const matchF = !filter || s.status === filter;
+    return matchQ && matchF;
+  });
+
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No titles found.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((s, i) => {
+    const sm = SCRIPTING_STATUS_META[s.status] || { label: s.status, pillClass: '' };
+    const dateDisplay = s.date
+      ? new Date(s.date).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
+      : '—';
+    return `
+      <tr>
+        <td style="color:var(--muted);font-size:12px">${i + 1}</td>
+        <td><div class="td-title">${s.title}</div></td>
+        <td>${s.writer || '—'}</td>
+        <td>${s.producer || '—'}</td>
+        <td style="font-variant-numeric:tabular-nums;white-space:nowrap">${s.budget ? '₹' + s.budget : '—'}</td>
+        <td><span class="status-pill ${sm.pillClass}">${sm.label}</span></td>
+        <td style="white-space:nowrap">${dateDisplay}</td>
+        <td>
+          <div class="row-actions">
+            <button class="action-btn" onclick="openScriptingModal('${s.id}')">Edit</button>
+            <button class="action-btn del" onclick="deleteScripting('${s.id}')">Del</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function openScriptingModal(id) {
+  editingScriptingId = id || null;
+  document.getElementById('scripting-modal-title').innerHTML = id ? 'Edit <em>Title</em>' : 'Add <em>Title</em>';
+  if (id) {
+    const s = scriptingItems.find(x => x.id === id);
+    document.getElementById('fsc-title').value    = s.title || '';
+    document.getElementById('fsc-writer').value   = s.writer || '';
+    document.getElementById('fsc-producer').value = s.producer || '';
+    document.getElementById('fsc-budget').value   = s.budget || '';
+    document.getElementById('fsc-status').value   = s.status || 'scripting';
+    document.getElementById('fsc-date').value     = s.date || '';
+  } else {
+    ['fsc-title','fsc-writer','fsc-producer','fsc-budget','fsc-date'].forEach(fid => {
+      document.getElementById(fid).value = '';
+    });
+    document.getElementById('fsc-status').value = 'scripting';
+  }
+  document.getElementById('scripting-modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('fsc-title').focus(), 100);
+}
+
+function closeScriptingModal() {
+  document.getElementById('scripting-modal-overlay').classList.remove('open');
+  editingScriptingId = null;
+}
+
+function closeScriptingModalOutside(e) {
+  if (e.target === document.getElementById('scripting-modal-overlay')) closeScriptingModal();
+}
+
+function saveScripting() {
+  const title    = document.getElementById('fsc-title').value.trim();
+  const writer   = document.getElementById('fsc-writer').value.trim();
+  const producer = document.getElementById('fsc-producer').value.trim();
+  const budget   = document.getElementById('fsc-budget').value.trim();
+  const status   = document.getElementById('fsc-status').value;
+  const date     = document.getElementById('fsc-date').value;
+
+  if (!title) { alert('Please enter a title.'); return; }
+
+  if (editingScriptingId) {
+    const idx = scriptingItems.findIndex(s => s.id === editingScriptingId);
+    scriptingItems[idx] = { ...scriptingItems[idx], title, writer, producer, budget, status, date };
+    toast('Title updated');
+  } else {
+    scriptingItems.push({ id: 'sc' + Date.now(), title, writer, producer, budget, status, date });
+    toast('Title added');
+  }
+
+  saveScriptingData();
+  renderScriptingTable();
+  closeScriptingModal();
+}
+
+function deleteScripting(id) {
+  const s = scriptingItems.find(x => x.id === id);
+  if (!confirm(`Delete "${s.title}"?`)) return;
+  scriptingItems = scriptingItems.filter(x => x.id !== id);
+  saveScriptingData();
+  renderScriptingTable();
+  toast('Title deleted');
+}
+
 // ── Keyboard shortcuts ────────────────────────────────────────────────────────
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeModal(); closeStatusModal(); }
+  if (e.key === 'Escape') { closeModal(); closeStatusModal(); closeScriptingModal(); }
   if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
     if (document.getElementById('modal-overlay').classList.contains('open')) saveRelease();
     if (document.getElementById('status-modal-overlay').classList.contains('open')) saveStatus();
+    if (document.getElementById('scripting-modal-overlay').classList.contains('open')) saveScripting();
   }
 });
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 
 load();
+loadScripting();
 populateStatusDropdowns();
 renderTable();
 renderMiniStats();
