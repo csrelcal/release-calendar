@@ -22,6 +22,8 @@
     --post: #7ae8b2;
     --shoot: #b27ae8;
     --preprod: #e8a87a;
+    --script: #a8e87a;
+    --scripting: #d07ae8;
   }
 
   html { scroll-behavior: smooth; }
@@ -192,6 +194,8 @@
   .release-card.post::before    { background: var(--post); }
   .release-card.shoot::before   { background: var(--shoot); }
   .release-card.preprod::before { background: var(--preprod); }
+  .release-card.script::before     { background: var(--script); }
+  .release-card.scripting::before  { background: var(--scripting); }
 
   .release-card.tonight {
     background: linear-gradient(135deg, #1e1515 0%, #161618 60%);
@@ -241,6 +245,8 @@
   .post .status-badge    { background: rgba(122,232,178,0.15); color: var(--post); }
   .shoot .status-badge   { background: rgba(178,122,232,0.15); color: var(--shoot); }
   .preprod .status-badge { background: rgba(232,168,122,0.15); color: var(--preprod); }
+  .script .status-badge     { background: rgba(168,232,122,0.15); color: var(--script); }
+  .scripting .status-badge  { background: rgba(208,122,232,0.15); color: var(--scripting); }
 
   /* Released Today badge */
   .released-today-badge {
@@ -387,12 +393,11 @@
 
 <footer>
   <span class="footer-text" id="footer-count">— releases</span>
-  <span class="footer-text">Mar – May 2026</span>
+  <span class="footer-text">Mar – Jun 2026</span>
 </footer>
 
 <script>
   (function () {
-    const STORAGE_KEY = 'chaishots_releases';
 
     const STATUS_LABELS = {
       tonight: 'Releasing Tonight',
@@ -400,51 +405,43 @@
       wip:     'WIP',
       post:    'In Post',
       shoot:   'In Shoot',
-      preprod: 'Pre Production'
+      preprod: 'Pre Production',
+      script:    'Script Ready',
+      scripting: 'Scripting'
     };
 
-    const DEFAULT_RELEASES = [
-      { id:1,  date:'2026-03-18', title:'Tejimola',                       subtitle:'',                             status:'tonight'  },
-      { id:2,  date:'2026-03-21', title:'Rayudu Gaari Pelli',             subtitle:'Final renders by Thursday',    status:'renders'  },
-      { id:3,  date:'2026-03-25', title:'Adipoli Apartments',             subtitle:'Telugu Dubbing — In Progress', status:'wip'      },
-      { id:4,  date:'2026-03-28', title:'Worst Character', subtitle:'',                             status:''     },
-      { id:5,  date:'2026-04-01', title:'Shiva Mahatyam',                subtitle:'',                             status:''     },
-      { id:6,  date:'2026-04-04', title:'Love in Phalgam', subtitle:'',                             status:''     },
-      { id:7,  date:'2026-04-08', title:'Sai Leelalu',               subtitle:'',                             status:''     },
-      { id:8,  date:'2026-04-11', title:'Love in Mussorie',   subtitle:'',                             status:''     },
-      { id:9,  date:'2026-04-15', title:'15 Minutes',  subtitle:'',                             status:''     },
-      { id:10, date:'2026-04-18', title:'Auto Basha',   subtitle:'',                             status:''     },
-      { id:11, date:'2026-04-22', title:'Nenu Mee Kalyan/Komarelli Mallanna Documentary',  subtitle:'',                             status:''     },
-      { id:12, date:'2026-04-25', title:'Musugu Veyoddhu',                subtitle:'',                             status:''    },
-      { id:13, date:'2026-04-29', title:'Rakaasi Pilla',                  subtitle:'Abyab',                        status:''     },
-      { id:14, date:'2026-05-02', title:'Nirudhyogi Naresh/Chaiwala Chanti',                    subtitle:'',                             status:''    },
-      { id:15, date:'2026-05-06', title:'EGO',                            subtitle:'',                             status:''     },
-      { id:16, date:'2026-05-09', title:'Chaiwala Chanti/Nirudhyogi Naresh',                subtitle:'',                             status:''  },
-      { id:17, date:'2026-05-13', title:'Ghar ki Dehleez',                subtitle:'',                             status:''     },
-      { id:18, date:'2026-05-16', title:'Breakup Sex/Lottery Lingaraju',                    subtitle:'',                             status:''  },
-      { id:19, date:'2026-05-20', title:'Blind Date',                     subtitle:'',                             status:''     },
-      { id:20, date:'2026-05-23', title:'Lottery Lingaraju/Breakup Sex',                   subtitle:'',                             status:''  },
-      { id:21, date:'2026-05-27', title:'Streetlo Srimanthudu',                    subtitle:'',                             status:''  },
-      { id:22, date:'2026-05-30', title:'Kanakadurga Mahatyam',          subtitle:'',                             status:''  },
-     { id:23, date:'2026-05-30', title:'A Day of Kishore',          subtitle:'',                             status:''  },
-     { id:24, date:'2026-06-03', title:'Angel Priya',          subtitle:'',                             status:''  },
-      { id:25, date:'2026-06-06', title:'Manmadha Rao',          subtitle:'',                             status:''  },
-      { id:26, date:'2026-06-10', title:'Cult 2',          subtitle:'',                             status:''  },
-      { id:27, date:'2026-06-13', title:'Love you CEO',          subtitle:'',                             status:''  },
-      { id:28, date:'2026-06-17', title:'Ownly Family',          subtitle:'',                             status:''  },
-      { id:29, date:'2026-06-20', title:'Divorced Marriage',          subtitle:'',                             status:''  },
-      { id:30, date:'2026-06-24', title:'Nightangale',          subtitle:'',                             status:''  },
-      { id:31, date:'2026-06-27', title:'Modern Manmadhudu',          subtitle:'',                             status:''  }
-     ];
-
-    // Load from localStorage or fall back to defaults
-    let releases;
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      releases = stored ? JSON.parse(stored) : DEFAULT_RELEASES;
-    } catch(e) {
-      releases = DEFAULT_RELEASES;
-    }
+    const releases = [
+      { id:1,  date:'2026-03-18', title:'Tejimola',                                          subtitle:'',                             status:'tonight'  },
+      { id:2,  date:'2026-03-21', title:'Rayudu Gaari Pelli',                                subtitle:'Final renders by Thursday',    status:'renders'  },
+      { id:3,  date:'2026-03-25', title:'Adipoli Apartments',                                subtitle:'Telugu Dubbing — In Progress', status:'wip'      },
+      { id:4,  date:'2026-03-28', title:'Worst Character',                                   subtitle:'',                             status:''         },
+      { id:5,  date:'2026-04-01', title:'Shiva Mahatyam',                                   subtitle:'',                             status:''         },
+      { id:6,  date:'2026-04-04', title:'Love in Phalgam',                                  subtitle:'',                             status:''         },
+      { id:7,  date:'2026-04-08', title:'Sai Leelalu',                                      subtitle:'',                             status:''         },
+      { id:8,  date:'2026-04-11', title:'Love in Mussorie',                                 subtitle:'',                             status:''         },
+      { id:9,  date:'2026-04-15', title:'15 Minutes',                                       subtitle:'',                             status:'post'     },
+      { id:10, date:'2026-04-18', title:'Auto Basha',                                       subtitle:'',                             status:'post'     },
+      { id:11, date:'2026-04-22', title:'Mallanna Docu/NMK',                                subtitle:'',                             status:'post'     },
+      { id:12, date:'2026-04-25', title:'Musugu Veyoddhu',                                  subtitle:'',                             status:'shoot'    },
+      { id:13, date:'2026-04-29', title:'Rakaasi Pilla',                                    subtitle:'Abyab',                        status:'post'     },
+      { id:14, date:'2026-05-02', title:'Nirudhyogi Naresh/Chaiwala Chanti',                subtitle:'',                             status:'shoot'    },
+      { id:15, date:'2026-05-06', title:'EGO',                                              subtitle:'',                             status:'post'     },
+      { id:16, date:'2026-05-09', title:'Chaiwala Chanti/Nirudhyogi Naresh',                subtitle:'',                             status:'shoot'    },
+      { id:17, date:'2026-05-13', title:'Ishq Ibbadat',                                     subtitle:'',                             status:'post'     },
+      { id:18, date:'2026-05-16', title:'Breakup Sex/Lottery Lingaraju',                    subtitle:'',                             status:'shoot'    },
+      { id:19, date:'2026-05-20', title:'Blind Date',                                       subtitle:'',                             status:'post'     },
+      { id:20, date:'2026-05-23', title:'Lottery Lingaraju/Breakup Sex',                    subtitle:'',                             status:'shoot'    },
+      { id:21, date:'2026-05-27', title:'Streetlo Srimanthudu',                             subtitle:'',                             status:'preprod'  },
+      { id:22, date:'2026-05-30', title:'Kanakadurga Mahatyam',                             subtitle:'',                             status:'script'   },
+      { id:24, date:'2026-06-03', title:'Angel Priya',                                      subtitle:'',                             status:'preprod'  },
+      { id:25, date:'2026-06-06', title:'Manmadha Rao',                                     subtitle:'',                             status:'script'   },
+      { id:26, date:'2026-06-10', title:'Cult 2',                                           subtitle:'',                             status:'script'   },
+      { id:27, date:'2026-06-13', title:'Love you CEO',                                     subtitle:'',                             status:'scripting'},
+      { id:28, date:'2026-06-17', title:'Ownly Family',                                     subtitle:'',                             status:'script'   },
+      { id:29, date:'2026-06-20', title:'Divorced Marriage',                                subtitle:'',                             status:'scripting'},
+      { id:30, date:'2026-06-24', title:'A Day of Kishore',                                 subtitle:'',                             status:'script'   },
+      { id:31, date:'2026-06-27', title:'Modern Manmadhudu',                                subtitle:'',                             status:'scripting'}
+    ];
 
     // Today at midnight
     const now = new Date();
@@ -454,21 +451,21 @@
     const todayLabel = today.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
     document.getElementById('today-tag').textContent = 'As of ' + todayLabel;
 
-    // Group by month
+    // Month map
     const MONTHS = {
       '03': { label: 'March 2026',  id: 'month-march' },
       '04': { label: 'April 2026',  id: 'month-april' },
       '05': { label: 'May 2026',    id: 'month-may'   },
+      '06': { label: 'June 2026',   id: 'month-june'  },
     };
 
-    // Clear existing static sections and rebuild dynamically
     const main = document.querySelector('.main');
     const emptyState = document.getElementById('empty-state');
 
     // Remove old month sections
     document.querySelectorAll('.month-section').forEach(s => s.remove());
 
-    // Build sections from data
+    // Group by month
     const grouped = {};
     releases.forEach(r => {
       const mo = r.date.split('-')[1];
@@ -479,7 +476,7 @@
     let visibleCount = 0;
     let nextCard = null;
     let nextDate = null;
-    let todayCards = []; // cards releasing today
+    let todayCards = [];
 
     Object.keys(grouped).sort().forEach(mo => {
       const info = MONTHS[mo] || { label: mo, id: 'month-' + mo };
@@ -503,7 +500,7 @@
         const isPast = releaseDate < today;
         const isToday = releaseDate.getTime() === today.getTime();
 
-        if (isPast) return; // skip past (before today)
+        if (isPast) return; // skip past
 
         visibleCount++;
         sectionVisible++;
@@ -528,10 +525,8 @@
         `;
 
         if (isToday) {
-          // Collect all today's releases — they'll be marked "Released"
           todayCards.push(card);
         } else {
-          // Track the next upcoming release (first future date after today)
           if (!nextDate || releaseDate < nextDate) {
             nextDate = releaseDate;
             nextCard = card;
@@ -548,14 +543,14 @@
       }
     });
 
-    // Mark today's releases as "Released"
+    // Mark today's releases
     todayCards.forEach(card => {
       card.classList.add('released-today');
       const badge = card.querySelector('.status-badge');
       if (badge) badge.outerHTML = '<span class="released-today-badge">Released</span>';
     });
 
-    // Mark the next upcoming release
+    // Mark next upcoming release
     if (nextCard) {
       nextCard.classList.add('next-release');
       const badge = nextCard.querySelector('.status-badge');
@@ -566,7 +561,6 @@
     document.getElementById('release-count').textContent = visibleCount;
     document.getElementById('footer-count').textContent = visibleCount + ' upcoming release' + (visibleCount !== 1 ? 's' : '');
 
-    // Show empty state if nothing
     if (visibleCount === 0) {
       document.getElementById('empty-state').classList.add('visible');
     }
