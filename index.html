@@ -423,8 +423,10 @@
       { id:10, date:'2026-04-18', title:'Atthamma Anjali Ghee Karam Dosa',                                       subtitle:'',                             status:'post'     },
       { id:11, date:'2026-04-22', title:'Auto Basha Drop 1/ Mallanna Docu',                                subtitle:'',                             status:'post'     },
       { id:12, date:'2026-04-25', title:'Headmaster vs Tuition Master',                                  subtitle:'',                             status:'shoot'    },
+      { id:41, date:'2026-04-27', title:'Mallanna Doc',                                     subtitle:'',                             status:'post'     },
       { id:13, date:'2026-04-29', title:'Auto Basha Drop 2',                                    subtitle:'',                        status:'post'     },
       { id:14, date:'2026-05-02', title:'Rakaasi Pilla',                subtitle:'',                             status:'post'    },
+      { id:42, date:'2026-05-04', title:'Tholubommalu Doc',                                  subtitle:'',                             status:'post'     },
       { id:15, date:'2026-05-06', title:'Lottery Lingaraju',                                              subtitle:'',                             status:'post'     },
       { id:16, date:'2026-05-09', title:'Chaiwala Chanti',                subtitle:'',                             status:'shoot'    },
       { id:17, date:'2026-05-13', title:'Nirudhyogi Naresh',                                     subtitle:'',                             status:'shoot'     },
@@ -433,7 +435,7 @@
       { id:20, date:'2026-05-23', title:'Breakup Sex',                    subtitle:'',                             status:'shoot'    },
       { id:21, date:'2026-05-27', title:'Ishq Ibaddat - Hindi Dubbing',                             subtitle:'',                             status:'post'  },
       { id:22, date:'2026-05-30', title:'Angel Priya',                             subtitle:'',                             status:'preprod'   },
-      { id:24, date:'2026-06-03', title:'Kanakadurga Mahatyam',                                      subtitle:'',                             status:'script'  },
+      { id:24, date:'2026-06-03', title:'Kanakadurga Mahatyam',                                      subtitle:'',                             status:'scripting'  },
       { id:25, date:'2026-06-06', title:'Manmadha Rao',                                     subtitle:'',                             status:'preprod'   },
       { id:26, date:'2026-06-10', title:'Cult 2',                                           subtitle:'',                             status:'preprod'   },
       { id:27, date:'2026-06-13', title:'Video Gameshop',                                     subtitle:'',                             status:'preprod'},
@@ -481,6 +483,11 @@
       const mo = r.date.split('-')[1];
       if (!grouped[mo]) grouped[mo] = [];
       grouped[mo].push(r);
+    });
+
+    // Sort each month's releases by date
+    Object.keys(grouped).forEach(mo => {
+      grouped[mo].sort((a, b) => a.date.localeCompare(b.date));
     });
 
     let visibleCount = 0;
