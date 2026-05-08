@@ -248,7 +248,6 @@
   .script .status-badge     { background: rgba(168,232,122,0.15); color: var(--script); }
   .scripting .status-badge  { background: rgba(208,122,232,0.15); color: var(--scripting); }
 
-  /* Released Today badge */
   .released-today-badge {
     font-size: 10px;
     font-weight: 500;
@@ -268,7 +267,6 @@
 
   .release-card.released-today::before { background: var(--post); }
 
-  /* Next Release badge */
   .next-release-badge {
     font-size: 10px;
     font-weight: 500;
@@ -383,12 +381,10 @@
 </header>
 
 <main class="main">
-
   <div class="empty-state" id="empty-state">
     <div class="empty-state-title">All caught up!</div>
     <div class="empty-state-sub">No upcoming releases scheduled.</div>
   </div>
-
 </main>
 
 <footer>
@@ -400,69 +396,70 @@
   (function () {
 
     const STATUS_LABELS = {
-      tonight: 'Releasing Tonight',
-      renders: 'Final Renders',
-      wip:     'WIP',
-      post:    'In Post',
-      shoot:   'In Shoot',
-      preprod: 'Pre Production',
+      tonight:   'Releasing Tonight',
+      renders:   'Final Renders',
+      wip:       'WIP',
+      post:      'In Post',
+      shoot:     'In Shoot',
+      preprod:   'Pre Production',
       script:    'Script Ready',
       scripting: 'Scripting'
     };
 
     const releases = [
-      { id:1,  date:'2026-03-18', title:'Tejimola',                                          subtitle:'',                             status:'tonight'  },
-      { id:2,  date:'2026-03-21', title:'Rayudu Gaari Pelli',                                subtitle:'Final renders by Thursday',    status:'renders'  },
-      { id:3,  date:'2026-03-25', title:'Adipoli Apartments',                                subtitle:'Telugu Dubbing — In Progress', status:'wip'      },
-      { id:4,  date:'2026-03-28', title:'Worst Character',                                   subtitle:'',                             status:''         },
-      { id:5,  date:'2026-04-01', title:'Shiva Mahatyam',                                   subtitle:'',                             status:''         },
-      { id:6,  date:'2026-04-04', title:'Love in Phalgam',                                  subtitle:'',                             status:''         },
-      { id:7,  date:'2026-04-08', title:'Sai Leelalu',                                      subtitle:'',                             status:''         },
-      { id:8,  date:'2026-04-11', title:'Love in Mussorie',                                 subtitle:'',                             status:''         },
-      { id:9,  date:'2026-04-15', title:'15 Minutes',                                       subtitle:'',                             status:'post'     },
-      { id:10, date:'2026-04-18', title:'Atthamma Anjali Ghee Karam Dosa',                                       subtitle:'',                             status:'post'     },
-      { id:11, date:'2026-04-22', title:'Auto Basha Drop 1/ Mallanna Docu',                                subtitle:'',                             status:'post'     },
-      { id:12, date:'2026-04-25', title:'Headmaster vs Tuition Master',                                  subtitle:'',                             status:'shoot'    },
-      { id:41, date:'2026-04-27', title:'Mallanna Doc',                                     subtitle:'',                             status:'post'     },
-      { id:13, date:'2026-04-29', title:'Auto Basha Drop 2',                                    subtitle:'',                        status:'post'     },
-      { id:14, date:'2026-05-02', title:'Rakaasi Pilla',                subtitle:'',                             status:'post'    },
-      { id:42, date:'2026-05-04', title:'Tholubommalu Doc',                                  subtitle:'',                             status:'post'     },
-      { id:15, date:'2026-05-06', title:'Chakravakam -Daily 10 Ep',                                              subtitle:'',                             status:'post'     },
-      { id:16, date:'2026-05-09', title:'Lottery Lingaraju',                subtitle:'',                             status:'post'    },
-      { id:17, date:'2026-05-13', title:'Ishq Ibaddat - Hindi Dub',                                     subtitle:'',                             status:'post'     },
-      { id:18, date:'2026-05-16', title:'Chaiwala Chanti',                    subtitle:'',                             status:'shoot'    },
-      { id:19, date:'2026-05-20', title:'Nirudhyogi Naresh',                                       subtitle:'',                             status:'shoot'     },
-      { id:20, date:'2026-05-23', title:'Pelli chesi choodu',                    subtitle:'',                             status:'shoot'    },
-      { id:21, date:'2026-05-27', title:'Begger to Billionaire',                             subtitle:'',                             status:'preprod'  },
-      { id:22, date:'2026-05-30', title:'Angel Priya',                             subtitle:'',                             status:'preprod'   },
-      { id:24, date:'2026-06-03', title:'Breakup Sex',                                      subtitle:'',                             status:'preprod'  },
-      { id:25, date:'2026-06-06', title:'Manmadha Rao',                                     subtitle:'',                             status:'preprod'   },
-      { id:26, date:'2026-06-10', title:'Musugu Veyoddhu',                                           subtitle:'',                             status:'preprod'   },
-      { id:27, date:'2026-06-13', title:'Video Gameshop',                                     subtitle:'',                             status:'preprod'},
-      { id:28, date:'2026-06-17', title:'Ko ante Koti',                                     subtitle:'',                             status:'preprod'   },
-      { id:29, date:'2026-06-20', title:'Yamaho Yama',                                subtitle:'',                             status:'preprod'},
-      { id:30, date:'2026-06-24', title:'Divorced Marriage',                                 subtitle:'',                             status:'scripting'   },
-      { id:31, date:'2026-06-27', title:'Modern Manmadhudu',                                subtitle:'',                             status:'scripting'},
-      { id:32, date:'2026-07-01', title:'Nightangale',                                      subtitle:'',                             status:'scripting'},
-      { id:33, date:'2026-07-04', title:'Venkateswara Mahatyam',                            subtitle:'',                             status:'scripting'},
-      { id:34, date:'2026-07-08', title:'Rapido Ramesh',                                    subtitle:'',                             status:'scripting'},
-      { id:35, date:'2026-07-11', title:'Second Husband',                             subtitle:'',                             status:'scripting'},
-      { id:36, date:'2026-07-15', title:'Girl Things',                            subtitle:'',                             status:'scripting'},
-      { id:37, date:'2026-07-18', title:'Love you CEO',                                   subtitle:'',                             status:'scripting'},
-      { id:38, date:'2026-07-22', title:'Secretary Sam',                                     subtitle:'',                             status:'scripting'},
-      { id:39, date:'2026-07-25', title:'Wife Material',                                    subtitle:'',                             status:'scripting'},
-      { id:40, date:'2026-07-29', title:'Kar Bura To Bhala',                                      subtitle:'',                             status:'scripting'}
+      { id:1,  date:'2026-03-18', title:'Tejimola',                          subtitle:'',                             status:'tonight'  },
+      { id:2,  date:'2026-03-21', title:'Rayudu Gaari Pelli',                subtitle:'Final renders by Thursday',    status:'renders'  },
+      { id:3,  date:'2026-03-25', title:'Adipoli Apartments',                subtitle:'Telugu Dubbing — In Progress', status:'wip'      },
+      { id:4,  date:'2026-03-28', title:'Worst Character',                   subtitle:'',                             status:''         },
+      { id:5,  date:'2026-04-01', title:'Shiva Mahatyam',                    subtitle:'',                             status:''         },
+      { id:6,  date:'2026-04-04', title:'Love in Phalgam',                   subtitle:'',                             status:''         },
+      { id:7,  date:'2026-04-08', title:'Sai Leelalu',                       subtitle:'',                             status:''         },
+      { id:8,  date:'2026-04-11', title:'Love in Mussorie',                  subtitle:'',                             status:''         },
+      { id:9,  date:'2026-04-15', title:'15 Minutes',                        subtitle:'',                             status:'post'     },
+      { id:10, date:'2026-04-18', title:'Atthamma Anjali Ghee Karam Dosa',   subtitle:'',                             status:'post'     },
+      { id:11, date:'2026-04-22', title:'Auto Basha Drop 1/ Mallanna Docu',  subtitle:'',                             status:'post'     },
+      { id:12, date:'2026-04-25', title:'Headmaster vs Tuition Master',      subtitle:'',                             status:'shoot'    },
+      { id:41, date:'2026-04-27', title:'Mallanna Doc',                      subtitle:'',                             status:'post'     },
+      { id:13, date:'2026-04-29', title:'Auto Basha Drop 2',                 subtitle:'',                             status:'post'     },
+      { id:14, date:'2026-05-02', title:'Rakaasi Pilla',                     subtitle:'',                             status:'post'     },
+      { id:42, date:'2026-05-04', title:'Tholubommalu Doc',                  subtitle:'',                             status:'post'     },
+      { id:15, date:'2026-05-06', title:'Chakravakam -Daily 10 Ep',          subtitle:'',                             status:'post'     },
+      { id:16, date:'2026-05-09', title:'Lottery Lingaraju',                 subtitle:'',                             status:'post'     },
+      { id:43, date:'2026-05-11', title:'Mogalirekhulu',                     subtitle:'',                             status:'post'     },
+      { id:17, date:'2026-05-13', title:'Ishq Ibaddat - Hindi Dub',          subtitle:'',                             status:'post'     },
+      { id:44, date:'2026-05-13', title:'Chakravakam',                       subtitle:'',                             status:'post'     },
+      { id:45, date:'2026-05-15', title:'Ruthuragaalu',                      subtitle:'',                             status:'post'     },
+      { id:46, date:'2026-05-18', title:'Tholubommalata',                      subtitle:'',                             status:'post'     },
+      { id:18, date:'2026-05-16', title:'Chaiwala Chanti',                   subtitle:'',                             status:'shoot'    },
+      { id:19, date:'2026-05-20', title:'Nirudhyogi Naresh',                 subtitle:'',                             status:'shoot'    },
+      { id:20, date:'2026-05-23', title:'Pelli chesi choodu',                subtitle:'',                             status:'shoot'    },
+      { id:21, date:'2026-05-27', title:'Begger to Billionaire',             subtitle:'',                             status:'preprod'  },
+      { id:22, date:'2026-05-30', title:'Angel Priya',                       subtitle:'',                             status:'preprod'  },
+      { id:24, date:'2026-06-03', title:'Breakup Sex',                       subtitle:'',                             status:'preprod'  },
+      { id:25, date:'2026-06-06', title:'Manmadha Rao',                      subtitle:'',                             status:'preprod'  },
+      { id:26, date:'2026-06-10', title:'Musugu Veyoddhu',                   subtitle:'',                             status:'preprod'  },
+      { id:27, date:'2026-06-13', title:'Video Gameshop',                    subtitle:'',                             status:'preprod'  },
+      { id:28, date:'2026-06-17', title:'Ko ante Koti',                      subtitle:'',                             status:'preprod'  },
+      { id:29, date:'2026-06-20', title:'Danda',                             subtitle:'',                             status:'preprod'  },
+      { id:30, date:'2026-06-24', title:'Divorced Marriage',                 subtitle:'',                             status:'scripting'},
+      { id:31, date:'2026-06-27', title:'Modern Manmadhudu',                 subtitle:'',                             status:'scripting'},
+      { id:32, date:'2026-07-01', title:'Nightangale',                       subtitle:'',                             status:'scripting'},
+      { id:33, date:'2026-07-04', title:'Venkateswara Mahatyam',             subtitle:'',                             status:'scripting'},
+      { id:34, date:'2026-07-08', title:'Rapido Ramesh',                     subtitle:'',                             status:'scripting'},
+      { id:35, date:'2026-07-11', title:'Second Husband',                    subtitle:'',                             status:'scripting'},
+      { id:36, date:'2026-07-15', title:'Girl Things',                       subtitle:'',                             status:'scripting'},
+      { id:37, date:'2026-07-18', title:'Love you CEO',                      subtitle:'',                             status:'scripting'},
+      { id:38, date:'2026-07-22', title:'Secretary Sam',                     subtitle:'',                             status:'scripting'},
+      { id:39, date:'2026-07-25', title:'Wife Material',                     subtitle:'',                             status:'scripting'},
+      { id:40, date:'2026-07-29', title:'Kar Bura To Bhala',                 subtitle:'',                             status:'scripting'}
     ];
 
-    // Today at midnight
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    // Show today's date
     const todayLabel = today.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
     document.getElementById('today-tag').textContent = 'As of ' + todayLabel;
 
-    // Month map
     const MONTHS = {
       '03': { label: 'March 2026',  id: 'month-march' },
       '04': { label: 'April 2026',  id: 'month-april' },
@@ -474,10 +471,8 @@
     const main = document.querySelector('.main');
     const emptyState = document.getElementById('empty-state');
 
-    // Remove old month sections
     document.querySelectorAll('.month-section').forEach(s => s.remove());
 
-    // Group by month
     const grouped = {};
     releases.forEach(r => {
       const mo = r.date.split('-')[1];
@@ -485,7 +480,6 @@
       grouped[mo].push(r);
     });
 
-    // Sort each month's releases by date
     Object.keys(grouped).forEach(mo => {
       grouped[mo].sort((a, b) => a.date.localeCompare(b.date));
     });
@@ -517,7 +511,7 @@
         const isPast = releaseDate < today;
         const isToday = releaseDate.getTime() === today.getTime();
 
-        if (isPast) return; // skip past
+        if (isPast) return;
 
         visibleCount++;
         sectionVisible++;
@@ -560,21 +554,18 @@
       }
     });
 
-    // Mark today's releases
     todayCards.forEach(card => {
       card.classList.add('released-today');
       const badge = card.querySelector('.status-badge');
       if (badge) badge.outerHTML = '<span class="released-today-badge">Released</span>';
     });
 
-    // Mark next upcoming release
     if (nextCard) {
       nextCard.classList.add('next-release');
       const badge = nextCard.querySelector('.status-badge');
       if (badge) badge.outerHTML = '<span class="next-release-badge">Next Release</span>';
     }
 
-    // Update counts
     document.getElementById('release-count').textContent = visibleCount;
     document.getElementById('footer-count').textContent = visibleCount + ' upcoming release' + (visibleCount !== 1 ? 's' : '');
 
